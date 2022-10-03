@@ -2,13 +2,17 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/navigationgraph"
-    app:startDestination="@id/fragment1">
+    app:startDestination="@id/FragmentMain">
     <fragment
-        android:id="@+id/fragment1"
-        android:name="com.higa.birritenexplorer.fragments.Fragment1"
-        android:label="Fragment1" />
+        android:id="@+id/FragmentMain"
+        android:name="com.higa.birritenexplorer.fragments.FragmentMain"
+        android:label="Fragment1">
+        <action
+            android:id="@+id/action_FragmentMain_to_fragmentCreation"
+            app:destination="@id/fragmentCreation" />
+    </fragment>
     <fragment
-        android:id="@+id/fragment2"
+        android:id="@+id/FragmentConfig"
         android:name="com.higa.birritenexplorer.fragments.Fragment2"
         android:label="Fragment2" >
         <action
@@ -19,4 +23,15 @@
         android:id="@+id/blankFragment"
         android:name="com.higa.birritenExplorer.fragments.BlankFragment"
         android:label="BlankFragment" />
+    <fragment
+        android:id="@+id/fragmentCreation"
+        android:name="com.higa.birritenexplorer.fragments.FragmentCreation"
+        android:label="FragmentCreation" >
+        <argument
+            android:name="name"
+            app:argType="string" />
+        <argument
+            android:name="description"
+            app:argType="string" />
+    </fragment>
 </navigation>
