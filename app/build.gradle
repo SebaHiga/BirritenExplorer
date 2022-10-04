@@ -9,7 +9,7 @@ plugins {
 
 android {
     compileSdk 32
-
+    buildToolsVersion "29.0.3"
     defaultConfig {
         applicationId "com.higa.birritenexplorer"
         minSdk 27
@@ -36,7 +36,7 @@ android {
 }
 
 dependencies {
-    def room_version = "2.2.3"
+//    def room_version = "2.3.0"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -53,8 +53,7 @@ dependencies {
 
 
     //room
-    implementation "android.arch.persistence.room:runtime:1.1.1"
-    kapt "android.arch.persistence.room:compiler:1.1.1"
-
-    implementation 'com.wajahatkarim3:roomexplorer:0.0.2'
+    implementation 'androidx.room:room-runtime:2.4.3'
+    kapt 'androidx.room:room-compiler:2.4.3'
+    implementation 'androidx.room:room-ktx:2.4.3'
 }
