@@ -12,7 +12,8 @@ import android.widget.Button
 import androidx.navigation.findNavController
 import com.higa.birritenexplorer.R
 import com.higa.birritenexplorer.database.AppDatabase
-import com.higa.birritenexplorer.database.userDao
+import com.higa.birritenexplorer.database.UserDao
+import com.higa.birritenexplorer.database.ItemDao
 
 /**
  * A simple [Fragment] subclass.
@@ -32,7 +33,8 @@ class FragmentMain : Fragment() {
     var itemList : MutableList<Item> = mutableListOf()
 
     private var db: AppDatabase? = null
-    private var userDao: userDao? = null
+    private var userDao: UserDao? = null
+    private var itemDao: ItemDao? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,7 +56,8 @@ class FragmentMain : Fragment() {
 
 
         db = AppDatabase.getAppDataBase(v.context)
-        userDao = db?.userDao()
+        userDao = db?.UserDao()
+        itemDao = db?.ItemDao()
 
         adapter = ItemAdapter(itemList, { item ->
             var action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.name, item.description)

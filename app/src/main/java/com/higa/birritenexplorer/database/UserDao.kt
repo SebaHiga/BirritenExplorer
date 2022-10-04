@@ -4,7 +4,7 @@ import androidx.room.*
 import com.higa.birritenexplorer.entities.User
 
 @Dao
-public interface userDao {
+public interface UserDao {
 
     @Query("SELECT * FROM users ORDER BY id")
     fun loadAllPersons(): MutableList<User?>?

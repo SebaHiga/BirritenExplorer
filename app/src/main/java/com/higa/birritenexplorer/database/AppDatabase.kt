@@ -13,7 +13,8 @@ import com.higa.birritenexplorer.entities.User
 
 public  abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun userDao(): userDao
+    abstract fun UserDao(): UserDao
+    abstract fun ItemDao(): ItemDao
 
     companion object {
         var INSTANCE: AppDatabase? = null
