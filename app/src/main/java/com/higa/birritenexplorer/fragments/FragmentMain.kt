@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import android.widget.Button
 import androidx.navigation.findNavController
 import com.higa.birritenexplorer.R
+import com.higa.birritenexplorer.database.AppDatabase
+import com.higa.birritenexplorer.database.userDao
 
 /**
  * A simple [Fragment] subclass.
@@ -29,6 +31,9 @@ class FragmentMain : Fragment() {
     lateinit var buttonAdd : Button
     var itemList : MutableList<Item> = mutableListOf()
 
+    private var db: AppDatabase? = null
+    private var userDao: userDao? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -38,17 +43,19 @@ class FragmentMain : Fragment() {
         recycleView = v.findViewById(R.id.itemList)
         buttonAdd = v.findViewById(R.id.addButton)
 
-        itemList.clear()
-
-        itemList.add(Item("1", "Golden", "Sample text1"))
-        itemList.add(Item("1", "Red", "Sample text2"))
-        itemList.add(Item("1", "What", "Sample text3"))
-
         return v
     }
 
     override fun onStart() {
         super.onStart()
+        itemList.add(Item(1, "Golden", "Sample text1"))
+        itemList.add(Item(1, "Red", "Sample text2"))
+        itemList.add(Item(1, "What", "Sample text3"))
+
+
+        db = AppDatabase.getAppDataBase(v.context)
+        userDao = db?.userDao()
+
         adapter = ItemAdapter(itemList, { item ->
             var action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.name, item.description)
             v.findNavController().navigate(action)
