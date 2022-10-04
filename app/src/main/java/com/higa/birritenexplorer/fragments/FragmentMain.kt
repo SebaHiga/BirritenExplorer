@@ -12,11 +12,6 @@ import android.widget.Button
 import androidx.navigation.findNavController
 import com.higa.birritenexplorer.R
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
 /**
  * A simple [Fragment] subclass.
  * Use the [FragmentMain.newInstance] factory method to
@@ -32,7 +27,7 @@ class FragmentMain : Fragment() {
     lateinit var recycleView : RecyclerView
     lateinit var adapter : ItemAdapter
     lateinit var buttonAdd : Button
-    var patternList : MutableList<Item> = mutableListOf()
+    var itemList : MutableList<Item> = mutableListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,16 +38,18 @@ class FragmentMain : Fragment() {
         recycleView = v.findViewById(R.id.itemList)
         buttonAdd = v.findViewById(R.id.addButton)
 
-        patternList.add(Item("1", "Golden", "Sample text1"))
-        patternList.add(Item("1", "Red", "Sample text2"))
-        patternList.add(Item("1", "What", "Sample text3"))
+        itemList.clear()
+
+        itemList.add(Item("1", "Golden", "Sample text1"))
+        itemList.add(Item("1", "Red", "Sample text2"))
+        itemList.add(Item("1", "What", "Sample text3"))
 
         return v
     }
 
     override fun onStart() {
         super.onStart()
-        adapter = ItemAdapter(patternList, { item ->
+        adapter = ItemAdapter(itemList, { item ->
             var action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.name, item.description)
             v.findNavController().navigate(action)
         })
@@ -64,6 +61,5 @@ class FragmentMain : Fragment() {
             var action = FragmentMainDirections.actionFragmentMainToFragmentCreation("", "")
             v.findNavController().navigate(action)
         }
-
     }
 }
