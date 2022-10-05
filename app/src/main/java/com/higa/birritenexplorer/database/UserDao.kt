@@ -7,18 +7,18 @@ import com.higa.birritenexplorer.entities.User
 public interface UserDao {
 
     @Query("SELECT * FROM users ORDER BY id")
-    fun loadAllPersons(): MutableList<User?>?
+    fun loadAll(): MutableList<User?>?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertPerson(user: User?)
+    fun insert(user: User?)
 
     @Update
-    fun updatePerson(user: User?)
+    fun update(user: User?)
 
     @Delete
     fun delete(user: User?)
 
     @Query("SELECT * FROM users WHERE id = :id")
-    fun loadPersonById(id: Int): User?
+    fun loadById(id: Int): User?
 
 }

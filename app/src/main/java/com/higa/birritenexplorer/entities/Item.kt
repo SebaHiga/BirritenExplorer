@@ -5,10 +5,10 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "items")
-class Item (id: Int, name: String, description: String){
-    @PrimaryKey
+class Item (name: String, description: String){
+    @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    var id : Int
+    var id : Int = 0
 
     @ColumnInfo(name = "name")
     var name : String
@@ -17,9 +17,8 @@ class Item (id: Int, name: String, description: String){
     var description : String
 
     init {
-        this.id = id
+//        this.id = id
         this.name = name
         this.description = description
-
     }
 }

@@ -14,6 +14,8 @@ import com.higa.birritenexplorer.R
 import com.higa.birritenexplorer.adapters.ItemAdapter
 import com.higa.birritenexplorer.entities.Item
 import android.widget.EditText
+import com.higa.birritenexplorer.database.AppDatabase
+import com.higa.birritenexplorer.database.ItemDao
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -36,9 +38,13 @@ class FragmentCreation : Fragment() {
     lateinit var buttonQuit : Button
     lateinit var editFieldName : EditText
     lateinit var editFieldDescription : EditText
+    private var itemDao: ItemDao? = null
 
-    var defaultDescriptionContent = "Cuentame un poco mas"
-    var defaultNameContent = "Que te tomaste"
+    private var db: AppDatabase? = null
+
+    var itemId : Int = -1
+    var defaultDescriptionContent = ""
+    var defaultNameContent = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,23 +54,8 @@ class FragmentCreation : Fragment() {
 
         buttonSave = v.findViewById(R.id.buttonSave)
         buttonQuit = v.findViewById(R.id.buttonQuit)
-
-        var name = FragmentCreationArgs.fromBundle(requireArguments()).name
-        var description = FragmentCreationArgs.fromBundle(requireArguments()).description
-
-        if (name.isEmpty()){
-            name = defaultNameContent
-        }
-
-        if (description.isEmpty()){
-            description = defaultDescriptionContent
-        }
-
         editFieldName = v.findViewById(R.id.textInputName)
-        editFieldName.setText(name)
-
         editFieldDescription = v.findViewById(R.id.textInputDescription)
-        editFieldDescription.setText(description)
 
         return v
     }
@@ -72,13 +63,46 @@ class FragmentCreation : Fragment() {
     override fun onStart() {
         super.onStart()
 
+        db = AppDatabase.getAppDataBase(v.context)
+        itemDao = db?.ItemDao()
+
         buttonSave.setOnClickListener {
             findNavController().popBackStack()
+
+            var name = editFieldName.text.toString()
+            var description = editFieldDescription.text.toString()
+
+            if (itemId != -1) {
+                // Update item by id
+                var item = Item(name, description)
+                item.id = itemId
+                itemDao?.update(item)
+            }
+            else {
+                // Insert new item
+                itemDao?.insert(Item(name, description))
+            }
         }
 
         buttonQuit.setOnClickListener {
             findNavController().popBackStack()
         }
+
+        itemId = FragmentCreationArgs.fromBundle(requireArguments()).itemId
+
+        var name = defaultNameContent
+        var description = defaultDescriptionContent
+
+        // We need to update an existing object
+        if (itemId != -1){
+            var item = itemDao?.loadById(itemId)
+
+            name = item?.name.toString()
+            description = item?.description.toString()
+        }
+
+        editFieldName.setText(name)
+        editFieldDescription.setText(description)
 
     }
 }

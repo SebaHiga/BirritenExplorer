@@ -48,28 +48,33 @@ class FragmentMain : Fragment() {
         return v
     }
 
+    override fun onResume() {
+        super.onResume()
+        onStart()
+    }
+
     override fun onStart() {
         super.onStart()
-        itemList.add(Item(1, "Golden", "Sample text1"))
-        itemList.add(Item(1, "Red", "Sample text2"))
-        itemList.add(Item(1, "What", "Sample text3"))
-
 
         db = AppDatabase.getAppDataBase(v.context)
         userDao = db?.UserDao()
         itemDao = db?.ItemDao()
 
         adapter = ItemAdapter(itemList, { item ->
-            var action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.name, item.description)
+            var action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.id)
             v.findNavController().navigate(action)
         })
 
         recycleView.layoutManager = LinearLayoutManager(requireContext())
         recycleView.adapter = adapter
 
+        itemList = itemDao?.loadAll() as MutableList<Item>
+
         buttonAdd.setOnClickListener {
-            var action = FragmentMainDirections.actionFragmentMainToFragmentCreation("", "")
+            var action = FragmentMainDirections.actionFragmentMainToFragmentCreation(-1)
             v.findNavController().navigate(action)
+
+            itemList = itemDao?.loadAll() as MutableList<Item>
         }
     }
 }

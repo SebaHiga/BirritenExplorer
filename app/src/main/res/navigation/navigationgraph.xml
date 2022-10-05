@@ -28,10 +28,7 @@
         android:name="com.higa.birritenexplorer.fragments.FragmentCreation"
         android:label="FragmentCreation" >
         <argument
-            android:name="name"
-            app:argType="string" />
-        <argument
-            android:name="description"
-            app:argType="string" />
+            android:name="itemId"
+            app:argType="integer" />
     </fragment>
 </navigation>
