@@ -21,4 +21,6 @@ public interface UserDao {
     @Query("SELECT * FROM users WHERE id = :id")
     fun loadById(id: Int): User?
 
+    @Query("SELECT * FROM users WHERE name = :name")
+    fun loadByName(name: String): User?
 }
