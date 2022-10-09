@@ -10,7 +10,7 @@ import kotlinx.coroutines.delay
 
 class SplashActivity : AppCompatActivity() {
 
-    private val SPLASH_TIME_OUT:Long = 1000 // 3 sec
+    private val SPLASH_TIME_OUT:Long = 2500 // 3 sec
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

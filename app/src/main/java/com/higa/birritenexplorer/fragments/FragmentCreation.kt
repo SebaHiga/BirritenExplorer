@@ -71,7 +71,6 @@ class FragmentCreation : Fragment() {
         db = AppDatabase.getAppDataBase(v.context)
         itemDao = db?.ItemDao()
 
-        itemController.setViewMode()
 
         buttonSave.setOnClickListener {
             var name = editFieldName.text.toString()
@@ -116,7 +115,12 @@ class FragmentCreation : Fragment() {
 
             name = item?.name.toString()
             description = item?.description.toString()
+            itemController.setViewMode()
         }
+        else{
+            itemController.setEditMode()
+        }
+
 
         editFieldName.setText(name)
         editFieldDescription.setText(description)
