@@ -17,16 +17,9 @@
         android:name="com.higa.birritenexplorer.fragments.FragmentProfile"
         android:label="Fragment2" >
         <action
-            android:id="@+id/action_fragment2_to_blankFragment"
-            app:destination="@id/blankFragment" />
-        <action
             android:id="@+id/action_FragmentProfile_to_settingsActivity"
             app:destination="@id/settingsActivity" />
     </fragment>
-    <fragment
-        android:id="@+id/blankFragment"
-        android:name="com.higa.birritenExplorer.fragments.BlankFragment"
-        android:label="BlankFragment" />
     <fragment
         android:id="@+id/fragmentCreation"
         android:name="com.higa.birritenexplorer.fragments.FragmentCreation"

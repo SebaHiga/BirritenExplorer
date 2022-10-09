@@ -10,7 +10,7 @@ class UserController (dao : UserDao?){
     fun isValid(user : User) : Boolean {
         var foundUser = dao?.loadByName(user.name)
 
-        return foundUser?.name == user.name && foundUser?.password == user.password
+        return foundUser?.name == user.name && foundUser.password == user.password
     }
 
     init {

@@ -61,13 +61,6 @@ class FragmentMain : Fragment() {
     override fun onStart() {
         super.onStart()
 
-        val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        val editor = sharedPref.edit()
-
-        editor.putString("USER", "Serbastian")
-        editor.putString("EMAIL", "sebastian@higa.com")
-        editor.apply()
-
         db = AppDatabase.getAppDataBase(v.context)
         userDao = db?.UserDao()
         itemDao = db?.ItemDao()
@@ -76,8 +69,6 @@ class FragmentMain : Fragment() {
             val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.id)
             v.findNavController().navigate(action)
         }
-
-        userDao?.insert(User(1, "Sebastian","pass","sebastian@higa.com"))
 
         recycleView.layoutManager = LinearLayoutManager(requireContext())
         recycleView.adapter = adapter
