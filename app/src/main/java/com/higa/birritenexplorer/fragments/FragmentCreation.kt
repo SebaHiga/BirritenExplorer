@@ -10,6 +10,7 @@ import androidx.navigation.fragment.findNavController
 import com.higa.birritenexplorer.R
 import com.higa.birritenexplorer.entities.Item
 import android.widget.EditText
+import com.higa.birritenexplorer.controllers.ItemController
 import com.higa.birritenexplorer.database.AppDatabase
 import com.higa.birritenexplorer.database.ItemDao
 
@@ -33,9 +34,12 @@ class FragmentCreation : Fragment() {
     lateinit var buttonSave : Button
     lateinit var buttonQuit : Button
     lateinit var buttonRemove : Button
+    lateinit var buttonEditToggle : Button
     lateinit var editFieldName : EditText
     lateinit var editFieldDescription : EditText
     private var itemDao: ItemDao? = null
+
+    lateinit var itemController : ItemController
 
     private var db: AppDatabase? = null
 
@@ -52,8 +56,11 @@ class FragmentCreation : Fragment() {
         buttonSave = v.findViewById(R.id.buttonSave)
         buttonQuit = v.findViewById(R.id.buttonQuit)
         buttonRemove = v.findViewById(R.id.buttonRemove)
+        buttonEditToggle = v.findViewById(R.id.buttonEditToggle)
         editFieldName = v.findViewById(R.id.textInputName)
         editFieldDescription = v.findViewById(R.id.textInputDescription)
+
+        itemController = ItemController(v)
 
         return v
     }
@@ -63,6 +70,8 @@ class FragmentCreation : Fragment() {
 
         db = AppDatabase.getAppDataBase(v.context)
         itemDao = db?.ItemDao()
+
+        itemController.setViewMode()
 
         buttonSave.setOnClickListener {
             var name = editFieldName.text.toString()
@@ -83,6 +92,10 @@ class FragmentCreation : Fragment() {
 
         buttonQuit.setOnClickListener {
             findNavController().popBackStack()
+        }
+
+        buttonEditToggle.setOnClickListener {
+            itemController.toggleEdit()
         }
 
         buttonRemove.setOnClickListener {
