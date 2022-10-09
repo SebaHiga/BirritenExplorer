@@ -6,7 +6,7 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "users")
-class User (  id : Int, name : String , email : String) {
+class User (  id : Int, name : String , password : String, email : String) {
 
     @PrimaryKey
     @ColumnInfo(name = "id")
@@ -15,14 +15,16 @@ class User (  id : Int, name : String , email : String) {
     @ColumnInfo(name = "name")
     var name : String
 
+    @ColumnInfo(name = "password")
+    var password : String
+
     @ColumnInfo(name = "email")
     var email : String
-
-
 
     init {
         this.id = id
         this.name = name
+        this.password = password
         this.email = email
 
     }

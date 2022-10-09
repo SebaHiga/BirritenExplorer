@@ -19,10 +19,10 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textName" />
+            app:layout_constraintTop_toBottomOf="@+id/textProfileName" />
 
         <TextView
-            android:id="@+id/textName"
+            android:id="@+id/textProfileName"
             android:layout_width="191dp"
             android:layout_height="40dp"
             android:text="TextView"

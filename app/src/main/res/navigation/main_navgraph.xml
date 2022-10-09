@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigationgraph"
     app:startDestination="@id/FragmentMain">
     <fragment
@@ -12,12 +13,15 @@
             app:destination="@id/fragmentCreation" />
     </fragment>
     <fragment
-        android:id="@+id/FragmentConfig"
-        android:name="com.higa.birritenexplorer.fragments.Fragment2"
+        android:id="@+id/FragmentProfile"
+        android:name="com.higa.birritenexplorer.fragments.FragmentProfile"
         android:label="Fragment2" >
         <action
             android:id="@+id/action_fragment2_to_blankFragment"
             app:destination="@id/blankFragment" />
+        <action
+            android:id="@+id/action_FragmentProfile_to_settingsActivity"
+            app:destination="@id/settingsActivity" />
     </fragment>
     <fragment
         android:id="@+id/blankFragment"
@@ -31,4 +35,8 @@
             android:name="itemId"
             app:argType="integer" />
     </fragment>
+    <activity
+        android:id="@+id/settingsActivity"
+        android:name="com.higa.birritenexplorer.activities.SettingsActivity"
+        android:label="SettingsActivity" />
 </navigation>

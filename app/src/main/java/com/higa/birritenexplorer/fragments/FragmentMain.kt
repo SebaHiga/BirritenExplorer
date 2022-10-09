@@ -14,6 +14,9 @@ import com.higa.birritenexplorer.R
 import com.higa.birritenexplorer.database.AppDatabase
 import com.higa.birritenexplorer.database.UserDao
 import com.higa.birritenexplorer.database.ItemDao
+import com.higa.birritenexplorer.entities.User
+import android.content.Context
+import android.content.SharedPreferences
 
 /**
  * A simple [Fragment] subclass.
@@ -25,6 +28,8 @@ class FragmentMain : Fragment() {
     companion object {
         fun newInstance() = FragmentMain()
     }
+
+    private val PREF_NAME = "myPreferences"
 
     lateinit var v : View
     lateinit var recycleView : RecyclerView
@@ -56,14 +61,23 @@ class FragmentMain : Fragment() {
     override fun onStart() {
         super.onStart()
 
+        val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val editor = sharedPref.edit()
+
+        editor.putString("USER", "Serbastian")
+        editor.putString("EMAIL", "sebastian@higa.com")
+        editor.apply()
+
         db = AppDatabase.getAppDataBase(v.context)
         userDao = db?.UserDao()
         itemDao = db?.ItemDao()
 
-        adapter = ItemAdapter(itemList, { item ->
-            var action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.id)
+        adapter = ItemAdapter(itemList) { item ->
+            val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.id)
             v.findNavController().navigate(action)
-        })
+        }
+
+        userDao?.insert(User(1, "Sebastian","pass","sebastian@higa.com"))
 
         recycleView.layoutManager = LinearLayoutManager(requireContext())
         recycleView.adapter = adapter
@@ -71,10 +85,8 @@ class FragmentMain : Fragment() {
         itemList = itemDao?.loadAll() as MutableList<Item>
 
         buttonAdd.setOnClickListener {
-            var action = FragmentMainDirections.actionFragmentMainToFragmentCreation(-1)
+            val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(-1)
             v.findNavController().navigate(action)
-
-            itemList = itemDao?.loadAll() as MutableList<Item>
         }
     }
 }

@@ -17,7 +17,7 @@ class ItemAdapter (private var itemList : MutableList<Item>, private val listene
         }
 
         fun setName(name : String){
-            var txtName : TextView = view.findViewById(R.id.textName)
+            var txtName : TextView = view.findViewById(R.id.textProfileName)
             txtName.text = name
         }
 

@@ -6,12 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.higa.birritenexplorer.R
-import com.higa.birritenexplorer.adapters.ItemAdapter
 import com.higa.birritenexplorer.entities.Item
 import android.widget.EditText
 import com.higa.birritenexplorer.database.AppDatabase
@@ -24,7 +20,7 @@ private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [Fragment2.newInstance] factory method to
+ * Use the [FragmentProfile.newInstance] factory method to
  * create an instance of this fragment.
  */
 class FragmentCreation : Fragment() {
@@ -36,6 +32,7 @@ class FragmentCreation : Fragment() {
     lateinit var v : View
     lateinit var buttonSave : Button
     lateinit var buttonQuit : Button
+    lateinit var buttonRemove : Button
     lateinit var editFieldName : EditText
     lateinit var editFieldDescription : EditText
     private var itemDao: ItemDao? = null
@@ -54,6 +51,7 @@ class FragmentCreation : Fragment() {
 
         buttonSave = v.findViewById(R.id.buttonSave)
         buttonQuit = v.findViewById(R.id.buttonQuit)
+        buttonRemove = v.findViewById(R.id.buttonRemove)
         editFieldName = v.findViewById(R.id.textInputName)
         editFieldDescription = v.findViewById(R.id.textInputDescription)
 
@@ -67,8 +65,6 @@ class FragmentCreation : Fragment() {
         itemDao = db?.ItemDao()
 
         buttonSave.setOnClickListener {
-            findNavController().popBackStack()
-
             var name = editFieldName.text.toString()
             var description = editFieldDescription.text.toString()
 
@@ -82,9 +78,17 @@ class FragmentCreation : Fragment() {
                 // Insert new item
                 itemDao?.insert(Item(name, description))
             }
+            findNavController().popBackStack()
         }
 
         buttonQuit.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
+        buttonRemove.setOnClickListener {
+            if (itemId != -1) {
+                itemDao?.delete(itemDao?.loadById(itemId))
+            }
             findNavController().popBackStack()
         }
 
