@@ -58,13 +58,14 @@ class FragmentLogin: Fragment() {
         userDao = db?.UserDao()
         userController = UserController(userDao)
 
-        userDao?.insert(User(1, "asdf", "asdf", "seb@higa.com"))
+        userController.insert(User("asdf", "asdf", "seb@higa.com"))
+        userController.insert(User("qwer", "qwer", "seb@higa.com"))
 
         buttonLogin.setOnClickListener {
             val name = editTextUserName.text.toString()
             val pass = editTextUserPassword.text.toString()
 
-            if (!userController.isValid(User(1, name, pass, ""))){
+            if (!userController.isValid(User(name, pass, ""))){
               // TODO: Alert notification, red wriggles and whatever
                 return@setOnClickListener
             }
@@ -75,6 +76,7 @@ class FragmentLogin: Fragment() {
 
             editor.putString("USER", userInfo?.name)
             editor.putString("EMAIL", userInfo?.email)
+            userInfo?.id?.let { it1 -> editor.putInt("USERID", it1) }
             editor.apply()
 
             val action = FragmentLoginDirections.actionFragmentLogin2ToMainActivity()

@@ -1,5 +1,7 @@
 package com.higa.birritenexplorer.fragments
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -29,6 +31,8 @@ class FragmentCreation : Fragment() {
     companion object {
         fun newInstance() = FragmentCreation()
     }
+
+    private val PREF_NAME = "myPreferences"
 
     lateinit var v : View
     lateinit var buttonSave : Button
@@ -76,15 +80,18 @@ class FragmentCreation : Fragment() {
             var name = editFieldName.text.toString()
             var description = editFieldDescription.text.toString()
 
+            val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            val userId = sharedPref.getInt("USERID",1)!!
+
             if (itemId != -1) {
                 // Update item by id
-                var item = Item(name, description)
+                var item = Item(name, description, userId)
                 item.id = itemId
                 itemDao?.update(item)
             }
             else {
                 // Insert new item
-                itemDao?.insert(Item(name, description))
+                itemDao?.insert(Item(name, description, userId))
             }
             findNavController().popBackStack()
         }

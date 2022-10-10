@@ -17,6 +17,9 @@ import com.higa.birritenexplorer.database.ItemDao
 import com.higa.birritenexplorer.entities.User
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
+import androidx.preference.Preference
+import androidx.preference.PreferenceManager
 
 /**
  * A simple [Fragment] subclass.
@@ -65,6 +68,11 @@ class FragmentMain : Fragment() {
         userDao = db?.UserDao()
         itemDao = db?.ItemDao()
 
+        val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val userId = sharedPref.getInt("USERID",1)!!
+
+        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+
         adapter = ItemAdapter(itemList) { item ->
             val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.id)
             v.findNavController().navigate(action)
@@ -73,7 +81,12 @@ class FragmentMain : Fragment() {
         recycleView.layoutManager = LinearLayoutManager(requireContext())
         recycleView.adapter = adapter
 
-        itemList = itemDao?.loadAll() as MutableList<Item>
+        if (prefs.getBoolean("switch_mistery", false)){
+            itemList = itemDao?.loadAll() as MutableList<Item>
+        }
+        else {
+            itemList = itemDao?.loadByUserId(userId) as MutableList<Item>
+        }
 
         buttonAdd.setOnClickListener {
             val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(-1)
