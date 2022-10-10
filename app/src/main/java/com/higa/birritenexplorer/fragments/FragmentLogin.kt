@@ -58,6 +58,8 @@ class FragmentLogin: Fragment() {
         userDao = db?.UserDao()
         userController = UserController(userDao)
 
+        userDao?.insert(User(1, "asdf", "asdf", "seb@higa.com"))
+
         buttonLogin.setOnClickListener {
             val name = editTextUserName.text.toString()
             val pass = editTextUserPassword.text.toString()
