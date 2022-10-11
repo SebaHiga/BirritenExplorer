@@ -23,7 +23,7 @@
         android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        app:itemBackground="@color/colorPrimaryDark"
+        app:itemBackground="@color/colorPrimary"
         app:itemHorizontalTranslationEnabled="true"
         app:labelVisibilityMode="auto"
         app:layout_constraintBottom_toBottomOf="parent"

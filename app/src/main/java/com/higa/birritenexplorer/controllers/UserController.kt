@@ -12,7 +12,7 @@ class UserController (dao : UserDao?){
     var dao : UserDao?
 
     fun isValid(user : User) : Boolean {
-        var foundUser = dao?.loadByName(user.name)
+        var foundUser: User? = dao?.loadByName(user.name) ?: return false
 
         val hashedPassword = foundUser?.password.toString()
         val passOk = BCrypt.checkpw(user.password, hashedPassword)

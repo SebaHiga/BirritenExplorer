@@ -16,7 +16,7 @@ import com.higa.birritenexplorer.database.AppDatabase
 import com.higa.birritenexplorer.database.UserDao
 import com.higa.birritenexplorer.entities.User
 
-class FragmentLogin: Fragment() {
+class FragmentCreateUser: Fragment() {
 
     companion object {
         fun newInstance() = FragmentMain()
@@ -25,10 +25,10 @@ class FragmentLogin: Fragment() {
     private val PREF_NAME = "myPreferences"
 
     lateinit var v : View
-    lateinit var buttonLogin : Button
-    lateinit var buttonGotoCreateUser : Button
-    lateinit var editTextUserName : EditText
-    lateinit var editTextUserPassword : EditText
+    lateinit var buttonCreateUser : Button
+    lateinit var editTextCreateUser : EditText
+    lateinit var editTextCreatePassword : EditText
+    lateinit var editTextCreateEmail : EditText
 
     private var db: AppDatabase? = null
     private var userDao: UserDao? = null
@@ -38,12 +38,12 @@ class FragmentLogin: Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        v = inflater.inflate(R.layout.fragment_login, container, false)
+        v = inflater.inflate(R.layout.fragment_create_user, container, false)
 
-        buttonLogin = v.findViewById(R.id.buttonLogin)
-        buttonGotoCreateUser = v.findViewById(R.id.buttonGotoUserCreation)
-        editTextUserName = v.findViewById(R.id.editTextUserName)
-        editTextUserPassword = v.findViewById(R.id.editTextUserPassword)
+        buttonCreateUser = v.findViewById(R.id.buttonCreateUser)
+        editTextCreateUser = v.findViewById(R.id.editTextCreateUser)
+        editTextCreatePassword = v.findViewById(R.id.editTextCreatePassword)
+        editTextCreateEmail = v.findViewById(R.id.editTextCreateEmail)
 
         return v
     }
@@ -60,35 +60,26 @@ class FragmentLogin: Fragment() {
         userDao = db?.UserDao()
         userController = UserController(userDao)
 
-        userController.insert(User("asdf", "asdf", "seb@higa.com"))
-        userController.insert(User("qwer", "qwer", "seb@higa.com"))
+        val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
 
-        buttonLogin.setOnClickListener {
-            val name = editTextUserName.text.toString()
-            val pass = editTextUserPassword.text.toString()
+        buttonCreateUser.setOnClickListener {
+            val name = editTextCreateUser.text.toString()
+            val pass = editTextCreatePassword.text.toString()
+            val email = editTextCreateEmail.text.toString()
 
-            if (!userController.isValid(User(name, pass, ""))){
-              // TODO: Alert notification, red wriggles and whatever
-                return@setOnClickListener
-            }
+            userController.insert(User(name, pass, email))
 
             val userInfo = userDao?.loadByName(name)
-            val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
             val editor = sharedPref.edit()
 
-            editor.putString("USER", userInfo?.name)
-            editor.putString("EMAIL", userInfo?.email)
+            editor.putString("USER", name)
+            editor.putString("EMAIL", email)
             userInfo?.id?.let { it1 -> editor.putInt("USERID", it1) }
             editor.apply()
 
-            val action = FragmentLoginDirections.actionFragmentLogin2ToMainActivity()
+            val action = FragmentCreateUserDirections.actionFragmentCreateUserToMainActivity2()
             v.findNavController().navigate(action)
             activity?.finish()
-        }
-
-        buttonGotoCreateUser.setOnClickListener {
-            val action = FragmentLoginDirections.actionFragmentLoginToFragmentCreateUser()
-            v.findNavController().navigate(action)
         }
     }
 }

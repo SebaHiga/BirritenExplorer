@@ -58,6 +58,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
                 android:text="Salir"
+                app:backgroundTint="@color/colorPrimary"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -68,6 +69,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Guardar"
+                app:backgroundTint="@color/colorPrimary"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.666"
@@ -81,6 +83,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
                 android:text="Eliminar"
+                app:backgroundTint="@color/colorPrimary"
                 app:layout_constraintStart_toEndOf="@+id/buttonQuit"
                 tools:layout_editor_absoluteY="80dp" />
 
@@ -89,6 +92,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Editar"
+                app:backgroundTint="@color/colorPrimary"
                 app:layout_constraintBottom_toTopOf="@+id/buttonSave"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.922"
