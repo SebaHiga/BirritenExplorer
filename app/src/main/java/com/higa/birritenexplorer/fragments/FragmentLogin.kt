@@ -87,7 +87,9 @@ class FragmentLogin: Fragment() {
         }
 
         buttonGotoCreateUser.setOnClickListener {
-            val action = FragmentLoginDirections.actionFragmentLoginToFragmentCreateUser()
+//            val action = FragmentLoginDirections.actionFragmentLoginToFragmentCreateUser()
+//            v.findNavController().navigate(action)
+            val action = FragmentLoginDirections.actionFragmentLoginToFragmentCamera()
             v.findNavController().navigate(action)
         }
     }
