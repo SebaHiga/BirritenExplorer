@@ -48,6 +48,7 @@ class FragmentCreateUser: Fragment() {
         return v
     }
 
+
     override fun onResume() {
         super.onResume()
         onStart()

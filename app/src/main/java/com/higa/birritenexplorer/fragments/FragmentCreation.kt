@@ -1,9 +1,16 @@
 package com.higa.birritenexplorer.fragments
 
+import android.Manifest
+import android.app.Activity
+import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +21,8 @@ import com.higa.birritenexplorer.R
 import com.higa.birritenexplorer.entities.Item
 import android.widget.EditText
 import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import com.higa.birritenexplorer.controllers.ItemController
 import com.higa.birritenexplorer.database.AppDatabase
@@ -37,6 +46,8 @@ class FragmentCreation : Fragment() {
     }
 
     private val PREF_NAME = "myPreferences"
+    private val CAMERA_PERMISSION_CODE = 1000
+    private val IMAGE_CAPTURE_CODE = 1001
 
     lateinit var v : View
     lateinit var buttonSave : Button
@@ -45,7 +56,6 @@ class FragmentCreation : Fragment() {
     lateinit var buttonEditToggle : Button
     lateinit var editFieldName : EditText
     lateinit var editFieldDescription : EditText
-    lateinit var imageViewCreateItem : ImageView
     private var itemDao: ItemDao? = null
 
     lateinit var itemController : ItemController
@@ -55,7 +65,9 @@ class FragmentCreation : Fragment() {
     var itemId : Int = -1
     var defaultDescriptionContent = ""
     var defaultNameContent = ""
-    var imageUri : String = ""
+
+    lateinit var imageViewCreateItem : ImageView
+    var imageUri : Uri? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -78,22 +90,83 @@ class FragmentCreation : Fragment() {
         return v
     }
 
-    override fun onResume() {
-        super.onResume()
-        onStart()
-        val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        val uri = sharedPref.getString("TAKEN_IMAGE_URI","")!!
+    private fun requestCameraPermission(): Boolean {
+        var permissionGranted = false
 
-        imageViewCreateItem.setImageURI(Uri.parse(uri))
+        // If system os is Marshmallow or Above, we need to request runtime permission
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            val cameraPermissionNotGranted = ContextCompat.checkSelfPermission(
+                activity as Context,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_DENIED
+            if (cameraPermissionNotGranted){
+                val permission = arrayOf(Manifest.permission.CAMERA)
+
+                // Display permission dialog
+                requestPermissions(permission, CAMERA_PERMISSION_CODE)
+            }
+            else{
+                // Permission already granted
+                permissionGranted = true
+            }
+        }
+        else{
+            // Android version earlier than M -> no need to request permission
+            permissionGranted = true
+        }
+
+        return permissionGranted
     }
 
-    fun cleanTakenPictureUri(){
-        val sharedPref: SharedPreferences =
-            requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        val editor = sharedPref.edit()
-        editor.putString("TAKEN_IMAGE_URI", imageUri.toString())
-        editor.apply()
+    // Handle Allow or Deny response from the permission dialog
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode === CAMERA_PERMISSION_CODE) {
+            if (grantResults.size === 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                // Permission was granted
+                openCameraInterface()
+            }
+            else{
+                // Permission was denied
+                showAlert("Camera permission was denied. Unable to take a picture.");
+            }
+        }
+    }
 
+    private fun openCameraInterface() {
+        val values = ContentValues()
+        values.put(MediaStore.Images.Media.TITLE, R.string.take_picture)
+        values.put(MediaStore.Images.Media.DESCRIPTION, R.string.take_picture_description)
+        imageUri = activity?.contentResolver?.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+
+        // Create camera intent
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
+
+        // Launch intent
+        startActivityForResult(intent, IMAGE_CAPTURE_CODE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        // Callback from camera intent
+        if (resultCode == Activity.RESULT_OK){
+            // Set image captured to image view
+            imageViewCreateItem?.setImageURI(imageUri)
+        }
+        else {
+            // Failed to take picture
+            showAlert("Failed to take camera picture")
+        }
+    }
+
+    private fun showAlert(message: String) {
+        val builder = AlertDialog.Builder(activity as Context)
+        builder.setMessage(message)
+        builder.setPositiveButton(R.string.ok_button_title, null)
+
+        val dialog = builder.create()
+        dialog.show()
     }
 
     override fun onStart() {
@@ -122,7 +195,6 @@ class FragmentCreation : Fragment() {
 
         editFieldName.setText(name)
         editFieldDescription.setText(description)
-        imageViewCreateItem.setImageURI(Uri.parse(imageUri))
 
         buttonSave.setOnClickListener {
             var name = editFieldName.text.toString()
@@ -160,8 +232,12 @@ class FragmentCreation : Fragment() {
         }
 
         imageViewCreateItem.setOnClickListener {
-            val action = FragmentCreationDirections.actionFragmentCreationToFragmentCamera()
-            v.findNavController().navigate(action)
+            // Request permission
+            val permissionGranted = requestCameraPermission()
+            if (permissionGranted) {
+                // Open the camera interface
+                openCameraInterface()
+            }
         }
     }
 }
