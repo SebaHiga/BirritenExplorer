@@ -2,6 +2,7 @@ package com.higa.birritenexplorer.fragments
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -12,9 +13,12 @@ import androidx.navigation.fragment.findNavController
 import com.higa.birritenexplorer.R
 import com.higa.birritenexplorer.entities.Item
 import android.widget.EditText
+import android.widget.ImageView
+import androidx.navigation.findNavController
 import com.higa.birritenexplorer.controllers.ItemController
 import com.higa.birritenexplorer.database.AppDatabase
 import com.higa.birritenexplorer.database.ItemDao
+import java.net.URI
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -41,6 +45,7 @@ class FragmentCreation : Fragment() {
     lateinit var buttonEditToggle : Button
     lateinit var editFieldName : EditText
     lateinit var editFieldDescription : EditText
+    lateinit var imageViewCreateItem : ImageView
     private var itemDao: ItemDao? = null
 
     lateinit var itemController : ItemController
@@ -50,6 +55,7 @@ class FragmentCreation : Fragment() {
     var itemId : Int = -1
     var defaultDescriptionContent = ""
     var defaultNameContent = ""
+    var imageUri : String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -61,12 +67,33 @@ class FragmentCreation : Fragment() {
         buttonQuit = v.findViewById(R.id.buttonQuit)
         buttonRemove = v.findViewById(R.id.buttonRemove)
         buttonEditToggle = v.findViewById(R.id.buttonEditToggle)
+
         editFieldName = v.findViewById(R.id.textInputName)
         editFieldDescription = v.findViewById(R.id.textInputDescription)
+
+        imageViewCreateItem = v.findViewById(R.id.imageViewCreateItem)
 
         itemController = ItemController(v)
 
         return v
+    }
+
+    override fun onResume() {
+        super.onResume()
+        onStart()
+        val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val uri = sharedPref.getString("TAKEN_IMAGE_URI","")!!
+
+        imageViewCreateItem.setImageURI(Uri.parse(uri))
+    }
+
+    fun cleanTakenPictureUri(){
+        val sharedPref: SharedPreferences =
+            requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val editor = sharedPref.edit()
+        editor.putString("TAKEN_IMAGE_URI", imageUri.toString())
+        editor.apply()
+
     }
 
     override fun onStart() {
@@ -75,6 +102,27 @@ class FragmentCreation : Fragment() {
         db = AppDatabase.getAppDataBase(v.context)
         itemDao = db?.ItemDao()
 
+        itemId = FragmentCreationArgs.fromBundle(requireArguments()).itemId
+
+        var name = defaultNameContent
+        var description = defaultDescriptionContent
+        var imageUri = ""
+
+        // We need to update an existing object
+        if (itemId != -1){
+            var item = itemDao?.loadById(itemId)
+
+            name = item?.name.toString()
+            description = item?.description.toString()
+            itemController.setViewMode()
+        }
+        else{
+            itemController.setEditMode()
+        }
+
+        editFieldName.setText(name)
+        editFieldDescription.setText(description)
+        imageViewCreateItem.setImageURI(Uri.parse(imageUri))
 
         buttonSave.setOnClickListener {
             var name = editFieldName.text.toString()
@@ -111,26 +159,9 @@ class FragmentCreation : Fragment() {
             findNavController().popBackStack()
         }
 
-        itemId = FragmentCreationArgs.fromBundle(requireArguments()).itemId
-
-        var name = defaultNameContent
-        var description = defaultDescriptionContent
-
-        // We need to update an existing object
-        if (itemId != -1){
-            var item = itemDao?.loadById(itemId)
-
-            name = item?.name.toString()
-            description = item?.description.toString()
-            itemController.setViewMode()
+        imageViewCreateItem.setOnClickListener {
+            val action = FragmentCreationDirections.actionFragmentCreationToFragmentCamera()
+            v.findNavController().navigate(action)
         }
-        else{
-            itemController.setEditMode()
-        }
-
-
-        editFieldName.setText(name)
-        editFieldDescription.setText(description)
-
     }
 }

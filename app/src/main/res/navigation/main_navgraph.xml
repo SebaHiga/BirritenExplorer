@@ -27,9 +27,16 @@
         <argument
             android:name="itemId"
             app:argType="integer" />
+        <action
+            android:id="@+id/action_fragmentCreation_to_fragmentCamera"
+            app:destination="@id/fragmentCamera" />
     </fragment>
     <activity
         android:id="@+id/settingsActivity"
         android:name="com.higa.birritenexplorer.activities.SettingsActivity"
         android:label="SettingsActivity" />
+    <fragment
+        android:id="@+id/fragmentCamera"
+        android:name="com.higa.birritenexplorer.fragments.FragmentCamera"
+        android:label="FragmentCamera" />
 </navigation>

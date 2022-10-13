@@ -19,10 +19,9 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
-import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat.checkSelfPermission
+import androidx.navigation.fragment.findNavController
 import com.higa.birritenexplorer.R
-import com.higa.birritenexplorer.controllers.ItemController
 import com.higa.birritenexplorer.database.AppDatabase
 import com.higa.birritenexplorer.database.ItemDao
 
@@ -135,22 +134,26 @@ class FragmentCamera : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        val userId = sharedPref.getInt("USERID",1)!!
+        val sharedPref: SharedPreferences =
+            requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val userId = sharedPref.getInt("USERID", 1)!!
 
         imageView = view.findViewById(R.id.imageview_picture)
 
-        view.findViewById<Button>(R.id.button_take_picture).setOnClickListener {
-            val editor = sharedPref.edit()
-
+        view.findViewById<Button>(R.id.buttonTakePicture).setOnClickListener {
             // Request permission
             val permissionGranted = requestCameraPermission()
             if (permissionGranted) {
                 // Open the camera interface
                 openCameraInterface()
-                Log.d("camera", imageUri.toString())
-                editor.putString("TAKEN_IMAGE_URI", imageUri.toString())
             }
+        }
+
+        view.findViewById<Button>(R.id.buttonUseTakenPicture).setOnClickListener {
+            val editor = sharedPref.edit()
+            editor.putString("TAKEN_IMAGE_URI", imageUri.toString())
+            editor.apply()
+            findNavController().popBackStack()
         }
     }
 }
