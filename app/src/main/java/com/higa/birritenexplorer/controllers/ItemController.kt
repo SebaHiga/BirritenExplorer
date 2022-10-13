@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import com.higa.birritenexplorer.R
 
 class ItemController (view : View){
@@ -13,6 +14,7 @@ class ItemController (view : View){
     var buttonEditToggle : Button
     var editFieldName : EditText
     var editFieldDescription : EditText
+    var imageView : ImageView
 
     fun isInEditMode(): Boolean {
         return editFieldDescription.isFocusable
@@ -29,6 +31,8 @@ class ItemController (view : View){
         buttonSave.visibility = View.INVISIBLE
         buttonRemove.visibility = View.INVISIBLE
         buttonQuit.visibility = View.INVISIBLE
+
+        imageView.isClickable = true
     }
 
     fun setViewMode(){
@@ -42,6 +46,8 @@ class ItemController (view : View){
         buttonSave.visibility = View.VISIBLE
         buttonRemove.visibility = View.VISIBLE
         buttonQuit.visibility = View.VISIBLE
+
+        imageView.isClickable = false
     }
 
     @SuppressLint("SetTextI18n")
@@ -61,5 +67,6 @@ class ItemController (view : View){
         buttonEditToggle = view.findViewById(R.id.buttonEditToggle)
         editFieldName = view.findViewById(R.id.textInputName)
         editFieldDescription = view.findViewById(R.id.textInputDescription)
+        imageView = view.findViewById(R.id.imageViewCreateItem)
     }
 }

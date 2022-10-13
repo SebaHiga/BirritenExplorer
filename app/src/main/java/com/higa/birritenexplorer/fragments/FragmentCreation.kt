@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -63,8 +64,8 @@ class FragmentCreation : Fragment() {
     private var db: AppDatabase? = null
 
     var itemId : Int = -1
-    var defaultDescriptionContent = ""
-    var defaultNameContent = ""
+    var previousDescriptionContent = ""
+    var previousNameContent = ""
 
     lateinit var imageViewCreateItem : ImageView
     var imageUri : Uri? = null
@@ -156,6 +157,7 @@ class FragmentCreation : Fragment() {
         }
         else {
             // Failed to take picture
+            imageUri = null
             showAlert("Failed to take camera picture")
         }
     }
@@ -169,6 +171,11 @@ class FragmentCreation : Fragment() {
         dialog.show()
     }
 
+    override fun onResume() {
+        super.onResume()
+        onStart()
+    }
+
     override fun onStart() {
         super.onStart()
 
@@ -177,9 +184,8 @@ class FragmentCreation : Fragment() {
 
         itemId = FragmentCreationArgs.fromBundle(requireArguments()).itemId
 
-        var name = defaultNameContent
-        var description = defaultDescriptionContent
-        var imageUri = ""
+        var name = previousNameContent
+        var description = previousDescriptionContent
 
         // We need to update an existing object
         if (itemId != -1){
@@ -187,31 +193,52 @@ class FragmentCreation : Fragment() {
 
             name = item?.name.toString()
             description = item?.description.toString()
+            imageUri = Uri.parse(item?.imageUri.toString())
+
+            if (imageUri?.toString() == "null"){
+                imageUri = null
+            }
+
             itemController.setViewMode()
         }
         else{
             itemController.setEditMode()
         }
 
+        if (previousDescriptionContent != ""){
+            itemController.setEditMode()
+        }
+
         editFieldName.setText(name)
         editFieldDescription.setText(description)
+
+        if (imageUri != null){
+            imageViewCreateItem.setImageURI(imageUri)
+        }
 
         buttonSave.setOnClickListener {
             var name = editFieldName.text.toString()
             var description = editFieldDescription.text.toString()
+            var uri = imageUri.toString()
 
             val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
             val userId = sharedPref.getInt("USERID",1)!!
 
+            Log.d("CAMERA", uri)
+
+            if (imageUri == null){
+                uri = "null"
+//                Log.d("CAMERA", uri)
+            }
+
+            var item = Item(name, userId, description, uri)
+            item.id = itemId
+
             if (itemId != -1) {
-                // Update item by id
-                var item = Item(name, description, userId)
-                item.id = itemId
                 itemDao?.update(item)
             }
             else {
-                // Insert new item
-                itemDao?.insert(Item(name, description, userId))
+                itemDao?.insert(Item(name, userId, description, uri))
             }
             findNavController().popBackStack()
         }
@@ -232,6 +259,11 @@ class FragmentCreation : Fragment() {
         }
 
         imageViewCreateItem.setOnClickListener {
+            var name = editFieldName.text.toString()
+            var description = editFieldDescription.text.toString()
+
+            previousNameContent = name
+            previousDescriptionContent = description
             // Request permission
             val permissionGranted = requestCameraPermission()
             if (permissionGranted) {

@@ -1,8 +1,10 @@
 package com.higa.birritenexplorer.adapters
 
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.higa.birritenexplorer.R
@@ -21,11 +23,12 @@ class ItemAdapter (private var itemList : MutableList<Item>, private val listene
             txtName.text = name
         }
 
-        fun setDescription(name : String){
-            var txtDescription : TextView = view.findViewById(R.id.textDescription)
-            txtDescription.text = name
+        fun setImageUri(imageUri : String){
+            var imageView : ImageView = view.findViewById(R.id.itemImageView)
+            if (imageUri != "null"){
+                imageView.setImageURI(Uri.parse(imageUri))
+            }
         }
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder {
@@ -35,7 +38,7 @@ class ItemAdapter (private var itemList : MutableList<Item>, private val listene
 
     override fun onBindViewHolder(holder: ItemHolder, position: Int) {
         holder.setName(itemList[position].name)
-        holder.setDescription(itemList[position].description)
+        holder.setImageUri(itemList[position].imageUri)
         holder.itemView.setOnClickListener { listener(itemList[position]) }
     }
 
