@@ -193,7 +193,17 @@ class FragmentCreation : Fragment() {
 
             name = item?.name.toString()
             description = item?.description.toString()
-            imageUri = Uri.parse(item?.imageUri.toString())
+
+            var uri = item?.imageUri.toString()
+
+            if (uri == "null"){
+                imageUri = null
+            }
+            else {
+                if (imageUri == null){
+                    imageUri = Uri.parse(uri)
+                }
+            }
 
             if (imageUri?.toString() == "null"){
                 imageUri = null
@@ -213,6 +223,7 @@ class FragmentCreation : Fragment() {
         editFieldDescription.setText(description)
 
         if (imageUri != null){
+            Log.d("Image Uri", imageUri.toString())
             imageViewCreateItem.setImageURI(imageUri)
         }
 
