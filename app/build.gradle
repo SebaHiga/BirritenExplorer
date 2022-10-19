@@ -5,6 +5,7 @@ plugins {
     id "kotlin-kapt"
     id "kotlin-android-extensions"
     id "kotlin-android"
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -61,4 +62,8 @@ dependencies {
     kapt 'androidx.room:room-compiler:2.4.3'
     implementation 'androidx.room:room-ktx:2.4.3'
 
+    implementation platform('com.google.firebase:firebase-bom:31.0.0')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
 }

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "836451083929",
+    "project_id": "com-higa-birradex",
+    "storage_bucket": "com-higa-birradex.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:836451083929:android:575b1f3e04a9dc6a48ba08",
+        "android_client_info": {
+          "package_name": "com.higa.birradex"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "836451083929-qk0217utr10tdcbdl2d7d3ers704g23r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2mBNVdjmeloEtW85Lgwyke7b0WsVtbiY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "836451083929-qk0217utr10tdcbdl2d7d3ers704g23r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
