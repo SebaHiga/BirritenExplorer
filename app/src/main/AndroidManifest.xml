@@ -3,7 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.higa.birritenexplorer">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.CAMERA"/>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -14,11 +16,30 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BirritenExplorer"
         tools:targetApi="31">
+
+        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
+        <uses-permission android:name="com.google.android.gms.permission.AD_ID" tools:node="remove"/>
+
+        <meta-data android:name="com.facebook.sdk.ClientToken" android:value="@string/facebook_client_token"/>
+        <activity android:name="com.higa.birritenexplorer.activities.FacebookActivity"
+            android:configChanges=
+                "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name" />
+        <activity
+            android:name="com.higa.birritenexplorer.activities.LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="@string/fb_login_protocol_scheme" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".activities.SettingsActivity"
             android:label="Settings" />
         <activity android:name=".activities.MainActivity" />
-        <activity android:name=".activities.LoginActivity" />
+<!--        <activity android:name=".activities.LoginActivity" />-->
         <activity android:name=".activities.SplashActivity"
             android:exported="true">
             <intent-filter>
