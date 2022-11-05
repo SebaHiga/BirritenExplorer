@@ -33,6 +33,35 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:836451083929:android:ad02e6db5d616d0a48ba08",
+        "android_client_info": {
+          "package_name": "com.higa.birritenexplorer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "836451083929-qk0217utr10tdcbdl2d7d3ers704g23r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2mBNVdjmeloEtW85Lgwyke7b0WsVtbiY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "836451083929-qk0217utr10tdcbdl2d7d3ers704g23r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"
