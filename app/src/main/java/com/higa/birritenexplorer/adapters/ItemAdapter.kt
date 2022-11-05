@@ -6,9 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatDrawableManager.get
 import androidx.recyclerview.widget.RecyclerView
 import com.higa.birritenexplorer.R
 import com.higa.birritenexplorer.entities.Item
+import com.squareup.picasso.Picasso
+import java.lang.reflect.Array.get
+import java.nio.file.Paths.get
 
 class ItemAdapter (private var itemList : MutableList<Item>, private val listener: (Item) -> Unit) : RecyclerView.Adapter<ItemAdapter.ItemHolder>() {
 
@@ -26,7 +30,8 @@ class ItemAdapter (private var itemList : MutableList<Item>, private val listene
         fun setImageUri(imageUri : String){
             var imageView : ImageView = view.findViewById(R.id.itemImageView)
             if (imageUri != "null"){
-                imageView.setImageURI(Uri.parse(imageUri))
+                Picasso.get().load("https://i.stack.imgur.com/fh6LL.png").into(imageView);
+//                imageView.setImageURI(Uri.parse("https://i.stack.imgur.com/fh6LL.png"))
             }
         }
     }
