@@ -1,6 +1,8 @@
 package com.higa.birritenexplorer.fragments
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -8,9 +10,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.facebook.AccessToken
@@ -18,7 +17,6 @@ import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
 import com.facebook.login.LoginResult
-import com.facebook.login.widget.LoginButton
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -28,7 +26,6 @@ import com.higa.birritenexplorer.database.AppDatabase
 import com.higa.birritenexplorer.database.UserDao
 import com.higa.birritenexplorer.databinding.FragmentLoginBinding
 import com.higa.birritenexplorer.entities.User
-import java.util.*
 
 
 class FragmentLogin: Fragment() {
@@ -70,6 +67,29 @@ class FragmentLogin: Fragment() {
         callbackManager.onActivityResult(requestCode, resultCode, data)
     }
 
+    fun askLoginWithPreviousUser(){
+        val builder = AlertDialog.Builder(activity as Context)
+
+        builder.setTitle("Confirm")
+        builder.setMessage("Are you sure?")
+
+        builder.setPositiveButton(
+            "YES",
+            DialogInterface.OnClickListener { dialog, which -> // Do nothing but close the dialog
+                dialog.dismiss()
+                goToMainActivity()
+            })
+
+        builder.setNegativeButton(
+            "NO",
+            DialogInterface.OnClickListener { dialog, which -> // Do nothing
+                dialog.dismiss()
+            })
+
+        val alert: AlertDialog = builder.create()
+        alert.show()
+    }
+
     override fun onResume() {
         super.onResume()
         onStart()
@@ -84,8 +104,9 @@ class FragmentLogin: Fragment() {
                 .addOnCompleteListener(it) { task ->
                     if (task.isSuccessful) {
                         // Sign in success, update UI with the signed-in user's information
-                        Log.d("TAG", "signInWithCredential:success")
-                        val user = auth.currentUser
+                        val email = auth.currentUser?.email
+                        Log.d("TTAGTAGTAGTAGTAGTAGTAGTAGTAGTAGAG", "signInWithCredential:success user is $email")
+
                     } else {
                         // If sign in fails, display a message to the user.
                         Log.w("TAG", "signInWithCredential:failure", task.exception)
@@ -94,6 +115,12 @@ class FragmentLogin: Fragment() {
                     }
                 }
         }
+    }
+
+    private fun goToMainActivity(){
+        val action = FragmentLoginDirections.actionFragmentLogin2ToMainActivity()
+        binding.root.findNavController().navigate(action)
+        activity?.finish()
     }
 
     override fun onStart() {
@@ -105,6 +132,14 @@ class FragmentLogin: Fragment() {
 
         userController.insert(User("asdf", "asdf", "seb@higa.com"))
         userController.insert(User("qwer", "qwer", "seb@higa.com"))
+
+        val accessToken = AccessToken.getCurrentAccessToken()
+        val isLoggedIn = accessToken != null && !accessToken.isExpired
+
+        if (isLoggedIn){
+            accessToken?.let { handleFacebookAccessToken(it) }
+            askLoginWithPreviousUser()
+        }
 
         // Callback registration
         binding.loginButton.registerCallback(callbackManager, object : FacebookCallback<LoginResult?> {
@@ -118,9 +153,7 @@ class FragmentLogin: Fragment() {
 
             override fun onSuccess(result: LoginResult?) {
                 result?.let { handleFacebookAccessToken(it.accessToken) }
-                val action = FragmentLoginDirections.actionFragmentLogin2ToMainActivity()
-                binding.root.findNavController().navigate(action)
-                activity?.finish()
+                goToMainActivity()
             }
         })
 
