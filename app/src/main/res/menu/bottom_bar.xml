@@ -7,6 +7,12 @@
         android:title="Main" />
 
     <item
+        android:id="@+id/fragmentScanner"
+        android:icon="@drawable/iconcamera"
+        android:title="Setup"
+        />
+
+    <item
         android:id="@+id/FragmentProfile"
         android:icon="@drawable/profileicon"
         android:title="Setup"

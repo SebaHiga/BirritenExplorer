@@ -40,4 +40,8 @@
         android:id="@+id/fragmentCamera"
         android:name="com.higa.birritenexplorer.fragments.FragmentCamera"
         android:label="FragmentCamera" />
+    <fragment
+        android:id="@+id/fragmentScanner"
+        android:name="com.higa.birritenexplorer.fragments.FragmentScanner"
+        android:label="FragmentScanner" />
 </navigation>
