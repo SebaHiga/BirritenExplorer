@@ -39,11 +39,6 @@ class FragmentLogin: Fragment() {
     lateinit var binding : FragmentLoginBinding
     lateinit var callbackManager : com.facebook.CallbackManager
     private lateinit var auth: FirebaseAuth
-// ...
-// Initialize Firebase Auth
-    private var db: AppDatabase? = null
-    private var userDao: UserDao? = null
-    lateinit var userController: UserController
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -70,11 +65,11 @@ class FragmentLogin: Fragment() {
     fun askLoginWithPreviousUser(){
         val builder = AlertDialog.Builder(activity as Context)
 
-        builder.setTitle("Confirm")
-        builder.setMessage("Are you sure?")
+        builder.setTitle("Confirmar")
+        builder.setMessage("Quieres seguir usando el usuario previo?")
 
         builder.setPositiveButton(
-            "YES",
+            "SI",
             DialogInterface.OnClickListener { dialog, which -> // Do nothing but close the dialog
                 dialog.dismiss()
                 goToMainActivity()
@@ -95,6 +90,19 @@ class FragmentLogin: Fragment() {
         onStart()
     }
 
+    fun configureUserFields(uid : String?, name : String?, email : String?){
+        val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val editor = sharedPref.edit()
+
+        editor.putString("USER", name)
+        editor.putString("EMAIL", email)
+        editor.putString("UID", uid)
+        editor.apply()
+
+        Log.d("Configuration", "Saving user info uid: $uid, name: $name, email: $email")
+    }
+
+
     private fun handleFacebookAccessToken(token: AccessToken) {
         Log.d("TAG", "handleFacebookAccessToken:$token")
 
@@ -105,7 +113,7 @@ class FragmentLogin: Fragment() {
                     if (task.isSuccessful) {
                         // Sign in success, update UI with the signed-in user's information
                         val email = auth.currentUser?.email
-                        Log.d("TTAGTAGTAGTAGTAGTAGTAGTAGTAGTAGAG", "signInWithCredential:success user is $email")
+                        configureUserFields(auth.currentUser?.uid, auth.currentUser?.displayName, auth.currentUser?.email)
 
                     } else {
                         // If sign in fails, display a message to the user.
@@ -125,13 +133,6 @@ class FragmentLogin: Fragment() {
 
     override fun onStart() {
         super.onStart()
-
-//        db = AppDatabase.getAppDataBase(binding.root as Context)
-        userDao = db?.UserDao()
-        userController = UserController(userDao)
-
-        userController.insert(User("asdf", "asdf", "seb@higa.com"))
-        userController.insert(User("qwer", "qwer", "seb@higa.com"))
 
         val accessToken = AccessToken.getCurrentAccessToken()
         val isLoggedIn = accessToken != null && !accessToken.isExpired
@@ -158,26 +159,20 @@ class FragmentLogin: Fragment() {
         })
 
         binding.buttonLogin.setOnClickListener {
-            val name = binding.editTextUserName.text.toString()
-            val pass = binding.editTextUserPassword.text.toString()
-
-            if (!userController.isValid(User(name, pass, ""))){
-              // TODO: Alert notification, red wriggles and whatever
-                return@setOnClickListener
-            }
-
-            val userInfo = userDao?.loadByName(name)
-            val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-            val editor = sharedPref.edit()
-
-            editor.putString("USER", userInfo?.name)
-            editor.putString("EMAIL", userInfo?.email)
-            userInfo?.id?.let { it1 -> editor.putInt("USERID", it1) }
-            editor.apply()
-
-            val action = FragmentLoginDirections.actionFragmentLogin2ToMainActivity()
-            binding.root.findNavController().navigate(action)
-            activity?.finish()
+//            val name = binding.editTextUserName.text.toString()
+//            val pass = binding.editTextUserPassword.text.toString()
+//
+//            if (!userController.isValid(User(name, pass, ""))){
+//              // TODO: Alert notification, red wriggles and whatever
+//                return@setOnClickListener
+//            }
+//
+//            val userInfo = userDao?.loadByName(name)
+//            userInfo?.id?.let { it1 -> editor.putInt("USERID", it1) }
+//
+//            val action = FragmentLoginDirections.actionFragmentLogin2ToMainActivity()
+//            binding.root.findNavController().navigate(action)
+//            activity?.finish()
         }
 
         binding.buttonGotoUserCreation.setOnClickListener {

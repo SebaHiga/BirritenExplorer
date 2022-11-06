@@ -17,10 +17,13 @@ import com.higa.birritenexplorer.database.ItemDao
 import com.higa.birritenexplorer.entities.User
 import android.content.Context
 import android.content.SharedPreferences
+import android.provider.CalendarContract.Attendees.query
 import android.util.Log
 import androidx.preference.Preference
 import androidx.preference.PreferenceManager
-
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.ktx.Firebase
 /**
  * A simple [Fragment] subclass.
  * Use the [FragmentMain.newInstance] factory method to
@@ -41,6 +44,8 @@ class FragmentMain : Fragment() {
     var itemList : MutableList<Item> = mutableListOf()
 
     private var db: AppDatabase? = null
+    // Access a Cloud Firestore instance from your Activity
+    val firestoreDB = Firebase.firestore
     private var userDao: UserDao? = null
     private var itemDao: ItemDao? = null
 
@@ -72,6 +77,17 @@ class FragmentMain : Fragment() {
         val userId = sharedPref.getInt("USERID",1)!!
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+
+
+        var docRef = firestoreDB.collection("images")
+
+        val query = docRef.whereEqualTo("userUID", "6pixkvLvruUEh9vdUQNQwilXNnF2").get().addOnSuccessListener { documents ->
+            for (document in documents){
+                Log.d("ASLKDJASLKDJLASJDLKJASLDKJAS", "${document.id} => ${document.data["imageURI"]}")
+            }
+        }
+
+        Log.d("QUEEEEERY", "QUERY RESULT ${query.toString()}")
 
         adapter = ItemAdapter(itemList) { item ->
             val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.id)
