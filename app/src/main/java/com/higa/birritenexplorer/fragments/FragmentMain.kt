@@ -74,38 +74,29 @@ class FragmentMain : Fragment() {
         itemDao = db?.ItemDao()
 
         val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        val userId = sharedPref.getInt("USERID",1)!!
+        val userUid = sharedPref.getString("UID", "")!!
 
-        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-
+//        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
 
         var docRef = firestoreDB.collection("images")
 
-        val query = docRef.whereEqualTo("userUID", "6pixkvLvruUEh9vdUQNQwilXNnF2").get().addOnSuccessListener { documents ->
+        val query = docRef.whereEqualTo("userUID", userUid).get().addOnSuccessListener { documents ->
+            itemList.clear()
             for (document in documents){
-                Log.d("ASLKDJASLKDJLASJDLKJASLDKJAS", "${document.id} => ${document.data["imageURI"]}")
+                var data = document.data
+                itemList.add(Item(data["album"].toString(), data["userUID"].toString(), data["imageURI"].toString()))
             }
-        }
+            adapter = ItemAdapter(itemList) { item ->
+                val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.album)
+                v.findNavController().navigate(action)
+            }
 
-        Log.d("QUEEEEERY", "QUERY RESULT ${query.toString()}")
-
-        adapter = ItemAdapter(itemList) { item ->
-            val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.id)
-            v.findNavController().navigate(action)
-        }
-
-        recycleView.layoutManager = LinearLayoutManager(requireContext())
-        recycleView.adapter = adapter
-
-        if (prefs.getBoolean("switch_mistery", false)){
-            itemList = itemDao?.loadAll() as MutableList<Item>
-        }
-        else {
-            itemList = itemDao?.loadByUserId(userId) as MutableList<Item>
+            recycleView.layoutManager = LinearLayoutManager(requireContext())
+            recycleView.adapter = adapter
         }
 
         buttonAdd.setOnClickListener {
-            val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(-1)
+            val action = FragmentMainDirections.actionFragmentMainToFragmentCreation()
             v.findNavController().navigate(action)
         }
     }

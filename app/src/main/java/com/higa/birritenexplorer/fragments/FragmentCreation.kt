@@ -24,11 +24,9 @@ import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import androidx.navigation.findNavController
 import com.higa.birritenexplorer.controllers.ItemController
 import com.higa.birritenexplorer.database.AppDatabase
 import com.higa.birritenexplorer.database.ItemDao
-import java.net.URI
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -63,7 +61,7 @@ class FragmentCreation : Fragment() {
 
     private var db: AppDatabase? = null
 
-    var itemId : Int = -1
+    var album : String = "default"
     var previousDescriptionContent = ""
     var previousNameContent = ""
 
@@ -182,34 +180,34 @@ class FragmentCreation : Fragment() {
         db = AppDatabase.getAppDataBase(v.context)
         itemDao = db?.ItemDao()
 
-        itemId = FragmentCreationArgs.fromBundle(requireArguments()).itemId
+        album = FragmentCreationArgs.fromBundle(requireArguments()).album
 
         var name = previousNameContent
         var description = previousDescriptionContent
 
         // We need to update an existing object
-        if (itemId != -1){
-            var item = itemDao?.loadById(itemId)
-
-            name = item?.name.toString()
-            description = item?.description.toString()
-
-            var uri = item?.imageUri.toString()
-
-            if (uri == "null"){
-                imageUri = null
-            }
-            else {
-                if (imageUri == null){
-                    imageUri = Uri.parse(uri)
-                }
-            }
-
-            if (imageUri?.toString() == "null"){
-                imageUri = null
-            }
-
-            itemController.setViewMode()
+        if (album != "default"){
+//            var item = itemDao?.loadById(album)
+//
+//            name = item?.name.toString()
+//            description = item?.description.toString()
+//
+//            var uri = item?.imageUri.toString()
+//
+//            if (uri == "null"){
+//                imageUri = null
+//            }
+//            else {
+//                if (imageUri == null){
+//                    imageUri = Uri.parse(uri)
+//                }
+//            }
+//
+//            if (imageUri?.toString() == "null"){
+//                imageUri = null
+//            }
+//
+//            itemController.setViewMode()
         }
         else{
             itemController.setEditMode()
@@ -228,29 +226,29 @@ class FragmentCreation : Fragment() {
         }
 
         buttonSave.setOnClickListener {
-            var name = editFieldName.text.toString()
-            var description = editFieldDescription.text.toString()
-            var uri = imageUri.toString()
-
-            val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-            val userId = sharedPref.getInt("USERID",1)!!
-
-            Log.d("CAMERA", uri)
-
-            if (imageUri == null){
-                uri = "null"
-//                Log.d("CAMERA", uri)
-            }
-
-            var item = Item(name, userId, description, uri)
-            item.id = itemId
-
-            if (itemId != -1) {
-                itemDao?.update(item)
-            }
-            else {
-                itemDao?.insert(Item(name, userId, description, uri))
-            }
+//            var name = editFieldName.text.toString()
+//            var description = editFieldDescription.text.toString()
+//            var uri = imageUri.toString()
+//
+//            val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+//            val userId = sharedPref.getInt("USERID",1)!!
+//
+//            Log.d("CAMERA", uri)
+//
+//            if (imageUri == null){
+//                uri = "null"
+////                Log.d("CAMERA", uri)
+//            }
+//
+//            var item = Item(name, userId, description, uri)
+//            item.id = album
+//
+//            if (album != -1) {
+//                itemDao?.update(item)
+//            }
+//            else {
+//                itemDao?.insert(Item(name, userId, description, uri))
+//            }
             findNavController().popBackStack()
         }
 
@@ -263,9 +261,9 @@ class FragmentCreation : Fragment() {
         }
 
         buttonRemove.setOnClickListener {
-            if (itemId != -1) {
-                itemDao?.delete(itemDao?.loadById(itemId))
-            }
+//            if (album != -1) {
+//                itemDao?.delete(itemDao?.loadById(album))
+//            }
             findNavController().popBackStack()
         }
 

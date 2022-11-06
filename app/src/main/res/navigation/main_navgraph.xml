@@ -24,12 +24,13 @@
         android:id="@+id/fragmentCreation"
         android:name="com.higa.birritenexplorer.fragments.FragmentCreation"
         android:label="FragmentCreation" >
-        <argument
-            android:name="itemId"
-            app:argType="integer" />
         <action
             android:id="@+id/action_fragmentCreation_to_fragmentCamera"
             app:destination="@id/fragmentCamera" />
+        <argument
+            android:name="album"
+            app:argType="string"
+            android:defaultValue="default" />
     </fragment>
     <activity
         android:id="@+id/settingsActivity"
