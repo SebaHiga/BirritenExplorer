@@ -103,7 +103,7 @@ class FragmentMain : Fragment() {
 //        }
 
         buttonAdd.setOnClickListener {
-            val action = FragmentMainDirections.actionFragmentMainToFragmentCreation()
+            val action = FragmentMainDirections.actionFragmentMainToFragmentCreation("New album")
             v.findNavController().navigate(action)
         }
     }

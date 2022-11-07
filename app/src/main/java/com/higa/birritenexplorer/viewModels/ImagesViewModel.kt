@@ -24,11 +24,12 @@ class ImagesViewModel : ViewModel(){
             return
         }
 
-        var docRef = firestoreDB.collection("images")
-        docRef.whereEqualTo("userUID", userUID).get().addOnSuccessListener { documents ->
+        var collection = firestoreDB.collection("images")
+        collection.whereEqualTo("userUID", userUID).get().addOnSuccessListener { documents ->
+            itemList.clear()
             for (document in documents){
                 var data = document.data
-                add(Item(data["album"].toString(), data["userUID"].toString(), data["imageURI"].toString()))
+                itemList.add(Item(data["album"].toString(), data["userUID"].toString(), data["imageURI"].toString()))
             }
             localIsUpdated = true
             listener()
@@ -39,21 +40,6 @@ class ImagesViewModel : ViewModel(){
 
     fun setOnLoadListener (callback : () -> Unit){
         listener = callback
-    }
-
-    fun add(item : Item){
-        var found = false
-
-        for (i in itemList){
-            if (areItemsEqual(i, item)) {
-                found = true
-                break
-            }
-        }
-
-        if (!found){
-            itemList.add(item)
-        }
     }
 
     fun addLocal(item : Item){
@@ -67,7 +53,6 @@ class ImagesViewModel : ViewModel(){
     }
 
     fun uploadPending(){
-        Log.d("ITEM VIEW CONTROLLER", "UPLOAD SIMULAING HEREE")
         for (item in toUploadList){
             var file = Uri.parse(item.imageUri)
             val imageReference = Firebase.storage.reference.child("${item.userUID}/${item.album}/${file.lastPathSegment}")
@@ -92,19 +77,44 @@ class ImagesViewModel : ViewModel(){
         }
     }
 
-    fun filterByAlbum(album : String){
+    fun changeAlbumName(previousName : String, newName : String){
+        for (item in itemList){
+            Log.d("CHANGEALBUMNAME", "CHANGING TO $newName")
+            if (previousName == item.album){
+                item.album = newName
+            }
+        }
+        for (item in toUploadList){
+            if (previousName == item.album){
+                item.album = newName
+            }
+        }
+
+        Log.d("CHANGEALBUMNAME", "STARTIN CLOUD ALBUM NAME AAA")
+        var collection = firestoreDB.collection("images")
+        collection.whereEqualTo("album", previousName).get().addOnSuccessListener { documents ->
+            for (document in documents){
+                var data = document.data
+                Log.d("UPDATING", "UPDATING NEW DOCUMENT WITH OC ID ${document.id.toString()}")
+                data["album"] = newName
+                collection.document(document.id.toString()).set(data)
+                    .addOnSuccessListener { Log.d("TAGANGNAANGNAGNAN", "DocumentSnapshot successfully written!") }
+                    .addOnFailureListener { e -> Log.w("TAGANGNAANGNAGNAN", "Error writing document", e) }
+            }
+        }
+        localIsUpdated = false
+    }
+
+    fun getByAlbum(album : String) : MutableList<Item>{
         var filtered : MutableList<Item> = mutableListOf()
 
         for (item in itemList) {
-           if (album == item.album) {
+            Log.d("FFILTERFILTERFILTERFILTERFILTERFILTERILTER", "FILTERING ALBUM $album")
+            if (album == item.album) {
                filtered.add((item))
            }
         }
 
-        localIsUpdated = false
-
-        itemList = filtered
-
-        listener()
+        return filtered
     }
 }

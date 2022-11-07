@@ -148,12 +148,15 @@ class FragmentCreation : Fragment() {
         val builder = android.app.AlertDialog.Builder(activity as Context)
 
         builder.setTitle("Confirmar")
-        builder.setMessage("Quieres subir las nuevas imagenes?")
+        builder.setMessage("Quieres guardar tus cambios?")
 
         builder.setPositiveButton(
             "SI",
             DialogInterface.OnClickListener { dialog, which -> // Do nothing but close the dialog
                 dialog.dismiss()
+                if (album != binding.textAlbumName.text.toString()){
+                    itemVM.changeAlbumName(album, binding.textAlbumName.text.toString())
+                }
                 itemVM.uploadPending()
             })
 
@@ -181,12 +184,11 @@ class FragmentCreation : Fragment() {
         album = FragmentCreationArgs.fromBundle(requireArguments()).album
 
         itemVM.loadForUserUID(userUID)
-        itemVM.filterByAlbum(album)
 
         binding.albumContent.layoutManager = LinearLayoutManager(requireContext())
 
         itemVM.setOnLoadListener {
-            adapter = AlbumContentAdapter(itemVM.itemList)
+            adapter = AlbumContentAdapter(itemVM.getByAlbum(album))
             binding.albumContent.adapter = adapter
         }
 
@@ -196,10 +198,10 @@ class FragmentCreation : Fragment() {
 //            binding.albumContent.adapter = adapter
 //        }
 
-        binding.textViewAlbumName.text = album
+        binding.textAlbumName.setText(album)
 
         binding.buttonAlbumQuit.setOnClickListener {
-            if (itemVM.toUploadList.isNotEmpty()){
+            if (itemVM.toUploadList.isNotEmpty() || album != binding.textAlbumName.text.toString()){
                askLoginWithPreviousUser()
             }
 
