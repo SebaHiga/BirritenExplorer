@@ -11,21 +11,12 @@ import androidx.recyclerview.widget.RecyclerView
 import android.widget.Button
 import androidx.navigation.findNavController
 import com.higa.birritenexplorer.R
-import com.higa.birritenexplorer.database.AppDatabase
-import com.higa.birritenexplorer.database.UserDao
-import com.higa.birritenexplorer.database.ItemDao
-import com.higa.birritenexplorer.entities.User
 import android.content.Context
 import android.content.SharedPreferences
-import android.provider.CalendarContract.Attendees.query
-import android.util.Log
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
-import androidx.preference.Preference
-import androidx.preference.PreferenceManager
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
+import com.higa.birritenexplorer.adapters.AlbumContentAdapter
 import com.higa.birritenexplorer.viewModels.ImagesViewModel
 
 /**
@@ -71,25 +62,44 @@ class FragmentMain : Fragment() {
         super.onStart()
 
         val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        val userUid = sharedPref.getString("UID", "")!!
+        val userUID = sharedPref.getString("UID", "")!!
 
 //        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        itemVM.loadForUserUID(userUID)
 
-        var docRef = firestoreDB.collection("images")
+//        itemVM.addOnLoadListener {
+//            adapter = ItemAdapter(itemVM.itemList) { item ->
+//                val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.album)
+//                v.findNavController().navigate(action)
+//            }
+//            recycleView.layoutManager = LinearLayoutManager(requireContext())
+//            recycleView.adapter = adapter
+//        }
 
-        val query = docRef.whereEqualTo("userUID", userUid).get().addOnSuccessListener { documents ->
-            for (document in documents){
-                var data = document.data
-                itemVM.add(Item(data["album"].toString(), data["userUID"].toString(), data["imageURI"].toString()))
-            }
-            adapter = ItemAdapter(itemVM.itemList) { item ->
+        itemVM.itemList.observe(viewLifecycleOwner) { data ->
+            adapter = ItemAdapter(data) { item ->
                 val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.album)
                 v.findNavController().navigate(action)
             }
-
             recycleView.layoutManager = LinearLayoutManager(requireContext())
             recycleView.adapter = adapter
         }
+
+//        var docRef = firestoreDB.collection("images")
+//
+//        val query = docRef.whereEqualTo("userUID", userUID).get().addOnSuccessListener { documents ->
+//            for (document in documents){
+//                var data = document.data
+//                itemVM.add(Item(data["album"].toString(), data["userUID"].toString(), data["imageURI"].toString()))
+//            }
+//            adapter = ItemAdapter(itemVM.itemList) { item ->
+//                val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.album)
+//                v.findNavController().navigate(action)
+//            }
+//
+//            recycleView.layoutManager = LinearLayoutManager(requireContext())
+//            recycleView.adapter = adapter
+//        }
 
         buttonAdd.setOnClickListener {
             val action = FragmentMainDirections.actionFragmentMainToFragmentCreation()

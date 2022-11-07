@@ -2,10 +2,7 @@ package com.higa.birritenexplorer.fragments
 
 import android.Manifest
 import android.app.Activity
-import android.content.ContentValues
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
+import android.content.*
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -52,7 +49,6 @@ class FragmentCreation : Fragment() {
     private val itemVM : ImagesViewModel by viewModels()
     var album : String = "default"
     private val PREF_NAME = "myPreferences"
-    val firestoreDB = Firebase.firestore
     lateinit var userUID : String
     lateinit var adapter : AlbumContentAdapter
     var imageUri : Uri? = null
@@ -130,7 +126,7 @@ class FragmentCreation : Fragment() {
             // Set image captured to image view
 //            imageViewCreateItem?.setImageURI(imageUri)
             Log.d("LAJSLKDJALSJDLKJSKDJALSKJDKALSKDJ ON CAMERA", "NEW IMAGE URI IS ${imageUri.toString()}")
-            itemVM.add(Item(album, userUID, imageUri.toString()))
+            itemVM.addLocal(Item(album, userUID, imageUri.toString()))
         }
         else {
             // Failed to take picture
@@ -148,6 +144,29 @@ class FragmentCreation : Fragment() {
         dialog.show()
     }
 
+    fun askLoginWithPreviousUser(){
+        val builder = android.app.AlertDialog.Builder(activity as Context)
+
+        builder.setTitle("Confirmar")
+        builder.setMessage("Quieres subir las nuevas imagenes?")
+
+        builder.setPositiveButton(
+            "SI",
+            DialogInterface.OnClickListener { dialog, which -> // Do nothing but close the dialog
+                dialog.dismiss()
+                itemVM.uploadPending()
+            })
+
+        builder.setNegativeButton(
+            "NO",
+            DialogInterface.OnClickListener { dialog, which -> // Do nothing
+                dialog.dismiss()
+            })
+
+        val alert: android.app.AlertDialog = builder.create()
+        alert.show()
+    }
+
     override fun onResume() {
         super.onResume()
         onStart()
@@ -161,41 +180,32 @@ class FragmentCreation : Fragment() {
 
         album = FragmentCreationArgs.fromBundle(requireArguments()).album
 
-        if (imageUri != null){
-            Log.d("Image Uri", imageUri.toString())
-//            imageViewCreateItem.setImageURI(imageUri)
-        }
+        itemVM.loadForUserUID(userUID)
+        itemVM.filterByAlbum(album)
 
-        var docRef = firestoreDB.collection("images")
+//        itemVM.addOnLoadListener {
+//            adapter = AlbumContentAdapter(itemVM.itemList)
+//            binding.albumContent.layoutManager = LinearLayoutManager(requireContext())
+//            binding.albumContent.adapter = adapter
+//        }
 
-        val query = docRef.whereEqualTo("userUID", userUID).get().addOnSuccessListener { documents ->
-            for (document in documents){
-                var data = document.data
-                itemVM.add(Item(data["album"].toString(), data["userUID"].toString(), data["imageURI"].toString()))
-            }
-            adapter = AlbumContentAdapter(itemVM.itemList)
-
+        itemVM.itemList.observe(viewLifecycleOwner) { data ->
+            adapter = AlbumContentAdapter(data)
             binding.albumContent.layoutManager = LinearLayoutManager(requireContext())
             binding.albumContent.adapter = adapter
         }
 
-//        buttonSave.setOnClickListener {
-//            findNavController().popBackStack()
-//        }
-//
-//        buttonQuit.setOnClickListener {
-//            findNavController().popBackStack()
-//        }
-//
-//        buttonEditToggle.setOnClickListener {
-//            itemController.toggleEdit()
-//        }
-//
-//        buttonRemove.setOnClickListener {
-//            findNavController().popBackStack()
-//        }
-//
-        binding.buttonAddImage.setOnClickListener {
+        binding.textViewAlbumName.text = album
+
+        binding.buttonAlbumQuit.setOnClickListener {
+            if (itemVM.toUploadList.isNotEmpty()){
+               askLoginWithPreviousUser()
+            }
+
+            findNavController().popBackStack()
+        }
+
+        binding.buttonAlbumAddImage.setOnClickListener {
             // Request permission
             val permissionGranted = requestCameraPermission()
             if (permissionGranted) {
