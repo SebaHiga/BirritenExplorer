@@ -17,10 +17,13 @@ import com.higa.birritenexplorer.database.ItemDao
 import com.higa.birritenexplorer.entities.User
 import android.content.Context
 import android.content.SharedPreferences
+import android.provider.CalendarContract.Attendees.query
 import android.util.Log
 import androidx.preference.Preference
 import androidx.preference.PreferenceManager
-
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.ktx.Firebase
 /**
  * A simple [Fragment] subclass.
  * Use the [FragmentMain.newInstance] factory method to
@@ -41,6 +44,8 @@ class FragmentMain : Fragment() {
     var itemList : MutableList<Item> = mutableListOf()
 
     private var db: AppDatabase? = null
+    // Access a Cloud Firestore instance from your Activity
+    val firestoreDB = Firebase.firestore
     private var userDao: UserDao? = null
     private var itemDao: ItemDao? = null
 
@@ -69,27 +74,29 @@ class FragmentMain : Fragment() {
         itemDao = db?.ItemDao()
 
         val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        val userId = sharedPref.getInt("USERID",1)!!
+        val userUid = sharedPref.getString("UID", "")!!
 
-        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+//        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
 
-        adapter = ItemAdapter(itemList) { item ->
-            val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.id)
-            v.findNavController().navigate(action)
-        }
+        var docRef = firestoreDB.collection("images")
 
-        recycleView.layoutManager = LinearLayoutManager(requireContext())
-        recycleView.adapter = adapter
+        val query = docRef.whereEqualTo("userUID", userUid).get().addOnSuccessListener { documents ->
+            itemList.clear()
+            for (document in documents){
+                var data = document.data
+                itemList.add(Item(data["album"].toString(), data["userUID"].toString(), data["imageURI"].toString()))
+            }
+            adapter = ItemAdapter(itemList) { item ->
+                val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.album)
+                v.findNavController().navigate(action)
+            }
 
-        if (prefs.getBoolean("switch_mistery", false)){
-            itemList = itemDao?.loadAll() as MutableList<Item>
-        }
-        else {
-            itemList = itemDao?.loadByUserId(userId) as MutableList<Item>
+            recycleView.layoutManager = LinearLayoutManager(requireContext())
+            recycleView.adapter = adapter
         }
 
         buttonAdd.setOnClickListener {
-            val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(-1)
+            val action = FragmentMainDirections.actionFragmentMainToFragmentCreation()
             v.findNavController().navigate(action)
         }
     }

@@ -12,6 +12,8 @@ buildscript{
         classpath 'androidx.navigation:navigation-safe-args-gradle-plugin:2.5.2'
         classpath 'com.android.tools.build:gradle:7.2.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.google.gms:google-services:4.3.13'
+//        classpath 'com.google.gms:google-services:3.0.0'
     }
 }
 
@@ -25,7 +27,7 @@ allprojects {
     repositories {
         google()
         jcenter()
-
+        mavenCentral()  // Maven Central repository
     }
 }
 

@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.navigation.ui.NavigationUI
+import com.facebook.CallbackManager
 import com.higa.birritenexplorer.R
 import com.higa.birritenexplorer.database.AppDatabase
 import com.higa.birritenexplorer.database.ItemDao

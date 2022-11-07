@@ -1,14 +1,18 @@
 package com.higa.birritenexplorer.adapters
 
-import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import com.higa.birritenexplorer.R
 import com.higa.birritenexplorer.entities.Item
+import com.squareup.picasso.Picasso
 
 class ItemAdapter (private var itemList : MutableList<Item>, private val listener: (Item) -> Unit) : RecyclerView.Adapter<ItemAdapter.ItemHolder>() {
 
@@ -26,7 +30,13 @@ class ItemAdapter (private var itemList : MutableList<Item>, private val listene
         fun setImageUri(imageUri : String){
             var imageView : ImageView = view.findViewById(R.id.itemImageView)
             if (imageUri != "null"){
-                imageView.setImageURI(Uri.parse(imageUri))
+
+                Firebase.storage.getReferenceFromUrl(imageUri).downloadUrl.addOnSuccessListener { url ->
+                    Log.d("ADAPTER AAA", "IMAGE URI IS ${url}")
+                    Picasso.get().load(url).into(imageView);
+
+                }
+//                imageView.setImageURI(Uri.parse("https://i.stack.imgur.com/fh6LL.png"))
             }
         }
     }
@@ -37,7 +47,7 @@ class ItemAdapter (private var itemList : MutableList<Item>, private val listene
     }
 
     override fun onBindViewHolder(holder: ItemHolder, position: Int) {
-        holder.setName(itemList[position].name)
+        holder.setName(itemList[position].album)
         holder.setImageUri(itemList[position].imageUri)
         holder.itemView.setOnClickListener { listener(itemList[position]) }
     }
