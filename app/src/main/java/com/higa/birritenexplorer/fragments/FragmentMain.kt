@@ -19,11 +19,15 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.provider.CalendarContract.Attendees.query
 import android.util.Log
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModel
 import androidx.preference.Preference
 import androidx.preference.PreferenceManager
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
+import com.higa.birritenexplorer.viewModels.ImagesViewModel
+
 /**
  * A simple [Fragment] subclass.
  * Use the [FragmentMain.newInstance] factory method to
@@ -37,17 +41,14 @@ class FragmentMain : Fragment() {
 
     private val PREF_NAME = "myPreferences"
 
+    private val itemVM : ImagesViewModel by viewModels()
+
     lateinit var v : View
     lateinit var recycleView : RecyclerView
     lateinit var adapter : ItemAdapter
     lateinit var buttonAdd : Button
-    var itemList : MutableList<Item> = mutableListOf()
-
-    private var db: AppDatabase? = null
     // Access a Cloud Firestore instance from your Activity
     val firestoreDB = Firebase.firestore
-    private var userDao: UserDao? = null
-    private var itemDao: ItemDao? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -69,10 +70,6 @@ class FragmentMain : Fragment() {
     override fun onStart() {
         super.onStart()
 
-        db = AppDatabase.getAppDataBase(v.context)
-        userDao = db?.UserDao()
-        itemDao = db?.ItemDao()
-
         val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         val userUid = sharedPref.getString("UID", "")!!
 
@@ -81,12 +78,11 @@ class FragmentMain : Fragment() {
         var docRef = firestoreDB.collection("images")
 
         val query = docRef.whereEqualTo("userUID", userUid).get().addOnSuccessListener { documents ->
-            itemList.clear()
             for (document in documents){
                 var data = document.data
-                itemList.add(Item(data["album"].toString(), data["userUID"].toString(), data["imageURI"].toString()))
+                itemVM.add(Item(data["album"].toString(), data["userUID"].toString(), data["imageURI"].toString()))
             }
-            adapter = ItemAdapter(itemList) { item ->
+            adapter = ItemAdapter(itemVM.itemList) { item ->
                 val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.album)
                 v.findNavController().navigate(action)
             }
