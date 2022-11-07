@@ -67,23 +67,24 @@ class FragmentMain : Fragment() {
 //        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
         itemVM.loadForUserUID(userUID)
 
-//        itemVM.addOnLoadListener {
-//            adapter = ItemAdapter(itemVM.itemList) { item ->
+        recycleView.layoutManager = LinearLayoutManager(requireContext())
+
+        itemVM.setOnLoadListener {
+            adapter = ItemAdapter(itemVM.itemList) { item ->
+                val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.album)
+                v.findNavController().navigate(action)
+            }
+            recycleView.adapter = adapter
+        }
+
+//        itemVM.itemList.observe(viewLifecycleOwner) { data ->
+//            adapter = ItemAdapter(data) { item ->
 //                val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.album)
 //                v.findNavController().navigate(action)
 //            }
 //            recycleView.layoutManager = LinearLayoutManager(requireContext())
 //            recycleView.adapter = adapter
 //        }
-
-        itemVM.itemList.observe(viewLifecycleOwner) { data ->
-            adapter = ItemAdapter(data) { item ->
-                val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.album)
-                v.findNavController().navigate(action)
-            }
-            recycleView.layoutManager = LinearLayoutManager(requireContext())
-            recycleView.adapter = adapter
-        }
 
 //        var docRef = firestoreDB.collection("images")
 //

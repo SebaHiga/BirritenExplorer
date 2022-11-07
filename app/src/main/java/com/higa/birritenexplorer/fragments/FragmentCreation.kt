@@ -183,17 +183,18 @@ class FragmentCreation : Fragment() {
         itemVM.loadForUserUID(userUID)
         itemVM.filterByAlbum(album)
 
-//        itemVM.addOnLoadListener {
-//            adapter = AlbumContentAdapter(itemVM.itemList)
+        binding.albumContent.layoutManager = LinearLayoutManager(requireContext())
+
+        itemVM.setOnLoadListener {
+            adapter = AlbumContentAdapter(itemVM.itemList)
+            binding.albumContent.adapter = adapter
+        }
+
+//        itemVM.itemList.observe(viewLifecycleOwner) { data ->
+//            adapter = AlbumContentAdapter(data)
 //            binding.albumContent.layoutManager = LinearLayoutManager(requireContext())
 //            binding.albumContent.adapter = adapter
 //        }
-
-        itemVM.itemList.observe(viewLifecycleOwner) { data ->
-            adapter = AlbumContentAdapter(data)
-            binding.albumContent.layoutManager = LinearLayoutManager(requireContext())
-            binding.albumContent.adapter = adapter
-        }
 
         binding.textViewAlbumName.text = album
 
