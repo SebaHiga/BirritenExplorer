@@ -67,9 +67,9 @@ class FragmentScanner : Fragment() {
             setupControls()
         }
 
-        val aniSlide: Animation =
-            AnimationUtils.loadAnimation(activity as Context, R.anim.scanner_animation)
-        binding.barcodeLine.startAnimation(aniSlide)
+//        val aniSlide: Animation =
+//            AnimationUtils.loadAnimation(activity as Context, R.anim.scanner_animation)
+//        binding.barcodeLine.startAnimation(aniSlide)
         return binding.root
     }
 
@@ -117,8 +117,6 @@ class FragmentScanner : Fragment() {
         barcodeDetector.setProcessor(object : Detector.Processor<Barcode> {
             override fun release() {
                 Log.d("SCANNEWRNERNEWNRENWRNWENR", "scanner closed!")
-//                Toast.makeText(applicationContext, "Scanner has been closed", Toast.LENGTH_SHORT)
-//                    .show()
             }
 
             override fun receiveDetections(detections: Detector.Detections<Barcode>) {
@@ -126,13 +124,14 @@ class FragmentScanner : Fragment() {
                 if (barcodes.size() == 1) {
                     scannedValue = barcodes.valueAt(0).rawValue
 
-                    Log.d("SCANEEEEEEEEEEEEEEEEEEEEEEEEER", "Scanner vvalues is $scannedValue")
                     //Don't forget to add this line printing value or finishing activity must run on main thread
-//                    runOnUiThread {
-//                        cameraSource.stop()
-//                        Toast.makeText(activity as Context, "value- $scannedValue", Toast.LENGTH_SHORT).show()
+                    activity!!.runOnUiThread {
+                        cameraSource.stop()
+                        Toast.makeText(activity, "value- $scannedValue", Toast.LENGTH_SHORT).show()
 //                        finish()
-//                    }
+                    }
+                    val action = FragmentScannerDirections.actionFragmentScannerToFragmentCreation(scannedValue)
+                    binding.root.findNavController().navigate(action)
                 }else
                 {
                     Toast.makeText(activity as Context, "value- else", Toast.LENGTH_SHORT).show()

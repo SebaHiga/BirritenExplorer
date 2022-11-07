@@ -43,5 +43,9 @@
     <fragment
         android:id="@+id/fragmentScanner"
         android:name="com.higa.birritenexplorer.fragments.FragmentScanner"
-        android:label="FragmentScanner" />
+        android:label="FragmentScanner" >
+        <action
+            android:id="@+id/action_fragmentScanner_to_fragmentCreation"
+            app:destination="@id/fragmentCreation" />
+    </fragment>
 </navigation>
