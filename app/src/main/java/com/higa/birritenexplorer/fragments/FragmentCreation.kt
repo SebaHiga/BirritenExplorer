@@ -24,69 +24,46 @@ import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
+import androidx.navigation.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.higa.birritenexplorer.adapters.AlbumContentAdapter
+import com.higa.birritenexplorer.adapters.ItemAdapter
 import com.higa.birritenexplorer.controllers.ItemController
 import com.higa.birritenexplorer.database.AppDatabase
 import com.higa.birritenexplorer.database.ItemDao
+import com.higa.birritenexplorer.databinding.FragmentCreationBinding
+import com.higa.birritenexplorer.databinding.FragmentLoginBinding
+import com.higa.birritenexplorer.viewModels.ImagesViewModel
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [FragmentProfile.newInstance] factory method to
- * create an instance of this fragment.
- */
 class FragmentCreation : Fragment() {
 
     companion object {
         fun newInstance() = FragmentCreation()
     }
 
-    private val PREF_NAME = "myPreferences"
     private val CAMERA_PERMISSION_CODE = 1000
     private val IMAGE_CAPTURE_CODE = 1001
-
-    lateinit var v : View
-    lateinit var buttonSave : Button
-    lateinit var buttonQuit : Button
-    lateinit var buttonRemove : Button
-    lateinit var buttonEditToggle : Button
-    lateinit var editFieldName : EditText
-    lateinit var editFieldDescription : EditText
-    private var itemDao: ItemDao? = null
-
-    lateinit var itemController : ItemController
-
-    private var db: AppDatabase? = null
-
+    lateinit var binding : FragmentCreationBinding
+    private val itemVM : ImagesViewModel by viewModels()
     var album : String = "default"
-    var previousDescriptionContent = ""
-    var previousNameContent = ""
-
-    lateinit var imageViewCreateItem : ImageView
+    private val PREF_NAME = "myPreferences"
+    val firestoreDB = Firebase.firestore
+    lateinit var userUID : String
+    lateinit var adapter : AlbumContentAdapter
     var imageUri : Uri? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        v = inflater.inflate(R.layout.fragment_create_item, container, false)
+        binding = FragmentCreationBinding.inflate(inflater, container, false)
 
-        buttonSave = v.findViewById(R.id.buttonSave)
-        buttonQuit = v.findViewById(R.id.buttonQuit)
-        buttonRemove = v.findViewById(R.id.buttonRemove)
-        buttonEditToggle = v.findViewById(R.id.buttonEditToggle)
-
-        editFieldName = v.findViewById(R.id.textInputName)
-        editFieldDescription = v.findViewById(R.id.textInputDescription)
-
-        imageViewCreateItem = v.findViewById(R.id.imageViewCreateItem)
-
-        itemController = ItemController(v)
-
-        return v
+        return binding.root
     }
 
     private fun requestCameraPermission(): Boolean {
@@ -151,7 +128,9 @@ class FragmentCreation : Fragment() {
         // Callback from camera intent
         if (resultCode == Activity.RESULT_OK){
             // Set image captured to image view
-            imageViewCreateItem?.setImageURI(imageUri)
+//            imageViewCreateItem?.setImageURI(imageUri)
+            Log.d("LAJSLKDJALSJDLKJSKDJALSKJDKALSKDJ ON CAMERA", "NEW IMAGE URI IS ${imageUri.toString()}")
+            itemVM.add(Item(album, userUID, imageUri.toString()))
         }
         else {
             // Failed to take picture
@@ -177,102 +156,46 @@ class FragmentCreation : Fragment() {
     override fun onStart() {
         super.onStart()
 
-        db = AppDatabase.getAppDataBase(v.context)
-        itemDao = db?.ItemDao()
+        val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        userUID = sharedPref.getString("UID", "")!!
 
         album = FragmentCreationArgs.fromBundle(requireArguments()).album
 
-        var name = previousNameContent
-        var description = previousDescriptionContent
-
-        // We need to update an existing object
-        if (album != "default"){
-//            var item = itemDao?.loadById(album)
-//
-//            name = item?.name.toString()
-//            description = item?.description.toString()
-//
-//            var uri = item?.imageUri.toString()
-//
-//            if (uri == "null"){
-//                imageUri = null
-//            }
-//            else {
-//                if (imageUri == null){
-//                    imageUri = Uri.parse(uri)
-//                }
-//            }
-//
-//            if (imageUri?.toString() == "null"){
-//                imageUri = null
-//            }
-//
-//            itemController.setViewMode()
-        }
-        else{
-            itemController.setEditMode()
-        }
-
-        if (previousDescriptionContent != ""){
-            itemController.setEditMode()
-        }
-
-        editFieldName.setText(name)
-        editFieldDescription.setText(description)
-
         if (imageUri != null){
             Log.d("Image Uri", imageUri.toString())
-            imageViewCreateItem.setImageURI(imageUri)
+//            imageViewCreateItem.setImageURI(imageUri)
         }
 
-        buttonSave.setOnClickListener {
-//            var name = editFieldName.text.toString()
-//            var description = editFieldDescription.text.toString()
-//            var uri = imageUri.toString()
-//
-//            val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-//            val userId = sharedPref.getInt("USERID",1)!!
-//
-//            Log.d("CAMERA", uri)
-//
-//            if (imageUri == null){
-//                uri = "null"
-////                Log.d("CAMERA", uri)
-//            }
-//
-//            var item = Item(name, userId, description, uri)
-//            item.id = album
-//
-//            if (album != -1) {
-//                itemDao?.update(item)
-//            }
-//            else {
-//                itemDao?.insert(Item(name, userId, description, uri))
-//            }
-            findNavController().popBackStack()
+        var docRef = firestoreDB.collection("images")
+
+        val query = docRef.whereEqualTo("userUID", userUID).get().addOnSuccessListener { documents ->
+            for (document in documents){
+                var data = document.data
+                itemVM.add(Item(data["album"].toString(), data["userUID"].toString(), data["imageURI"].toString()))
+            }
+            adapter = AlbumContentAdapter(itemVM.itemList)
+
+            binding.albumContent.layoutManager = LinearLayoutManager(requireContext())
+            binding.albumContent.adapter = adapter
         }
 
-        buttonQuit.setOnClickListener {
-            findNavController().popBackStack()
-        }
-
-        buttonEditToggle.setOnClickListener {
-            itemController.toggleEdit()
-        }
-
-        buttonRemove.setOnClickListener {
-//            if (album != -1) {
-//                itemDao?.delete(itemDao?.loadById(album))
-//            }
-            findNavController().popBackStack()
-        }
-
-        imageViewCreateItem.setOnClickListener {
-            var name = editFieldName.text.toString()
-            var description = editFieldDescription.text.toString()
-
-            previousNameContent = name
-            previousDescriptionContent = description
+//        buttonSave.setOnClickListener {
+//            findNavController().popBackStack()
+//        }
+//
+//        buttonQuit.setOnClickListener {
+//            findNavController().popBackStack()
+//        }
+//
+//        buttonEditToggle.setOnClickListener {
+//            itemController.toggleEdit()
+//        }
+//
+//        buttonRemove.setOnClickListener {
+//            findNavController().popBackStack()
+//        }
+//
+        binding.buttonAddImage.setOnClickListener {
             // Request permission
             val permissionGranted = requestCameraPermission()
             if (permissionGranted) {

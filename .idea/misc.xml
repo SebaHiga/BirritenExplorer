@@ -17,10 +17,10 @@
         <entry key="app/src/main/res/layout/fragment_create_item.xml" value="0.23458385802151865" />
         <entry key="app/src/main/res/layout/fragment_create_user.xml" value="0.20364583333333333" />
         <entry key="app/src/main/res/layout/fragment_login.xml" value="0.24682971014492755" />
-        <entry key="app/src/main/res/layout/fragment_main.xml" value="0.5324927255092143" />
+        <entry key="app/src/main/res/layout/fragment_main.xml" value="0.425" />
         <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.23610687255859378" />
         <entry key="app/src/main/res/layout/fragment_scanner.xml" value="0.23072916666666668" />
-        <entry key="app/src/main/res/layout/image.xml" value="0.13855116514690982" />
+        <entry key="app/src/main/res/layout/image.xml" value="0.33" />
         <entry key="app/src/main/res/layout/item.xml" value="0.296195652173913" />
         <entry key="app/src/main/res/layout/scanner_animation.xml" value="0.24479166666666666" />
         <entry key="app/src/main/res/layout/settings_activity.xml" value="0.2368659420289855" />

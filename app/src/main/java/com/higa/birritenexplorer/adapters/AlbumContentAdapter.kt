@@ -13,17 +13,12 @@ import com.higa.birritenexplorer.R
 import com.higa.birritenexplorer.entities.Item
 import com.squareup.picasso.Picasso
 
-class ItemAdapter (private var itemList : MutableList<Item>, private val listener: (Item) -> Unit) : RecyclerView.Adapter<ItemAdapter.ItemHolder>() {
+class AlbumContentAdapter (private var itemList : MutableList<Item>) : RecyclerView.Adapter<AlbumContentAdapter.ItemHolder>() {
 
     class ItemHolder(v : View) : RecyclerView.ViewHolder(v){
         private var view : View
         init {
             this.view = v
-        }
-
-        fun setName(name : String){
-            var txtName : TextView = view.findViewById(R.id.textProfileName)
-            txtName.text = name
         }
 
         fun setImageUri(imageUri : String){
@@ -43,14 +38,12 @@ class ItemAdapter (private var itemList : MutableList<Item>, private val listene
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.image, parent, false)
         return (ItemHolder(view))
     }
 
     override fun onBindViewHolder(holder: ItemHolder, position: Int) {
-        holder.setName(itemList[position].album)
         holder.setImageUri(itemList[position].imageUri)
-        holder.itemView.setOnClickListener { listener(itemList[position]) }
     }
 
     override fun getItemCount(): Int {
