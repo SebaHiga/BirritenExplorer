@@ -68,6 +68,9 @@ class FragmentLogin: Fragment() {
         builder.setTitle("Confirmar")
         builder.setMessage("Quieres seguir usando el usuario previo?")
 
+        // QUITAR
+        goToMainActivity()
+
         builder.setPositiveButton(
             "SI",
             DialogInterface.OnClickListener { dialog, which -> // Do nothing but close the dialog

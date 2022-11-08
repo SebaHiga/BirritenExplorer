@@ -1,22 +1,19 @@
 package com.higa.birritenexplorer.viewModels
 
-import android.content.Context
-import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import com.higa.birritenexplorer.entities.Album
 import com.higa.birritenexplorer.entities.Item
-import kotlinx.coroutines.tasks.await
-import java.io.File
 
 class ImagesViewModel : ViewModel(){
     var itemList : MutableList<Item> = mutableListOf()
+    var albumSummary : MutableList<Album> = mutableListOf()
     var toUploadList : MutableList<Item> = mutableListOf()
     var toDisableList : MutableList<Item> = mutableListOf()
     private val firestoreDB = Firebase.firestore
@@ -46,8 +43,30 @@ class ImagesViewModel : ViewModel(){
                 ))
             }
             localIsUpdated = true
+            generateAlbumSummary()
             callListeners()
         }
+    }
+
+    fun generateAlbumSummary(){
+       var albumItemMap : HashMap<String, MutableList<Item>> = hashMapOf()
+       var albumQrIdMap : HashMap<String, String> = hashMapOf()
+
+//        albumSummary.clear()
+        for (item in itemList){
+           albumItemMap[item.album] = mutableListOf()
+        }
+
+       for (item in itemList){
+           albumItemMap[item.album]?.add(item)
+           albumQrIdMap[item.album] = item.qrId
+       }
+
+       albumItemMap.forEach{ entry ->
+           albumQrIdMap[entry.key]?.let { Album(it, entry.key, entry.value) }
+               ?.let { albumSummary.add(it) }
+           Log.d("ASDFASDFASDFl", "asdkfajsdkfjaksjdkfj ${entry.key} ${entry.value}")
+       }
     }
 
     fun forceLoad(userUID : String){

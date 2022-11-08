@@ -1,23 +1,24 @@
 package com.higa.birritenexplorer.fragments
-import com.higa.birritenexplorer.adapters.ItemAdapter
-import com.higa.birritenexplorer.entities.Item
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.HorizontalScrollView
+import android.widget.LinearLayout
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.widget.Button
-import androidx.navigation.findNavController
-import com.higa.birritenexplorer.R
-import android.content.Context
-import android.content.SharedPreferences
-import androidx.fragment.app.viewModels
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.higa.birritenexplorer.R
 import com.higa.birritenexplorer.adapters.AlbumContentAdapter
+import com.higa.birritenexplorer.adapters.ItemAdapter
+import com.higa.birritenexplorer.adapters.SummaryAdapter
 import com.higa.birritenexplorer.viewModels.ImagesViewModel
 
 /**
@@ -37,7 +38,8 @@ class FragmentMain : Fragment() {
 
     lateinit var v : View
     lateinit var recycleView : RecyclerView
-    lateinit var adapter : ItemAdapter
+    lateinit var horizontalLayout: LinearLayoutManager
+    lateinit var adapter : SummaryAdapter
     lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private var userUID = ""
     // Access a Cloud Firestore instance from your Activity
@@ -50,23 +52,48 @@ class FragmentMain : Fragment() {
         v = inflater.inflate(R.layout.fragment_main, container, false)
 
         recycleView = v.findViewById(R.id.itemList)
-        swipeRefreshLayout = v.findViewById(R.id.swipeContainer)
-
-        recycleView.layoutManager = LinearLayoutManager(requireContext())
+//        swipeRefreshLayout = v.findViewById(R.id.swipeContainer)
+        itemVM.loadForUserUID(userUID)
         itemVM.setOnLoadListener {
-            adapter = ItemAdapter(itemVM.itemList) { item ->
-                val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.album, item.qrId)
-                v.findNavController().navigate(action)
+            recycleView.apply {
+                layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+                adapter = SummaryAdapter(itemVM.albumSummary){ album ->
+                    val action =
+                        FragmentMainDirections.actionFragmentMainToFragmentCreation(
+                            album.album,
+                            album.qrId
+                        )
+                    v.findNavController().navigate(action)
+                }
             }
-            recycleView.adapter = adapter
+
         }
 
+//        recycleView.layoutManager = LinearLayoutManager(requireContext())
+//        itemVM.setOnLoadListener {
+//            adapter = SummaryAdapter(itemVM.albumSummary) { album ->
+//                val action =
+//                    FragmentMainDirections.actionFragmentMainToFragmentCreation(
+//                        album.album,
+//                        album.qrId
+//                    )
+//                v.findNavController().navigate(action)
+//            }
+//            recycleView.adapter = adapter
+//        }
+//        itemVM.setOnLoadListener {
+//            adapter = ItemAdapter(itemVM.itemList) { item ->
+//                val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.album, item.qrId)
+//                v.findNavController().navigate(action)
+//            }
+//            recycleView.adapter = adapter
+//        }
 
-        swipeRefreshLayout.setOnRefreshListener {
-            itemVM.forceLoad(userUID)
-            swipeRefreshLayout.isRefreshing = false
-            adapter.notifyDataSetChanged()
-        }
+//        swipeRefreshLayout.setOnRefreshListener {
+//            itemVM.forceLoad(userUID)
+//            swipeRefreshLayout.isRefreshing = false
+//            adapter.notifyDataSetChanged()
+//        }
         return v
     }
 
