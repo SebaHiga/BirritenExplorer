@@ -50,6 +50,11 @@ class ImagesViewModel : ViewModel(){
         }
     }
 
+    fun forceLoad(userUID : String){
+        localIsUpdated = false
+        loadForUserUID(userUID)
+    }
+
     private fun callListeners(){
         for (listener in listeners){
             listener()
@@ -180,8 +185,10 @@ class ImagesViewModel : ViewModel(){
             if (it.imageUri == imageUri){
                 toDisableList.add(it)
                 it.enabled = false
-                itemList.remove(it)
             }
+        }
+        for (it in toDisableList){
+            itemList.remove(it)
         }
         callListeners()
     }

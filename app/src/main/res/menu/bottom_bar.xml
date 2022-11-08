@@ -9,7 +9,7 @@
     <item
         android:id="@+id/fragmentScanner"
         android:icon="@drawable/iconcamera"
-        android:title="Setup"
+        android:title="Scan"
         />
 
     <item

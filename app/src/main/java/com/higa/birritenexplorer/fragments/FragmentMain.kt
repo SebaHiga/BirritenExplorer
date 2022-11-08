@@ -14,6 +14,7 @@ import com.higa.birritenexplorer.R
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.fragment.app.viewModels
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.higa.birritenexplorer.adapters.AlbumContentAdapter
@@ -37,6 +38,8 @@ class FragmentMain : Fragment() {
     lateinit var v : View
     lateinit var recycleView : RecyclerView
     lateinit var adapter : ItemAdapter
+    lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private var userUID = ""
     // Access a Cloud Firestore instance from your Activity
     val firestoreDB = Firebase.firestore
 
@@ -47,6 +50,7 @@ class FragmentMain : Fragment() {
         v = inflater.inflate(R.layout.fragment_main, container, false)
 
         recycleView = v.findViewById(R.id.itemList)
+        swipeRefreshLayout = v.findViewById(R.id.swipeContainer)
 
         recycleView.layoutManager = LinearLayoutManager(requireContext())
         itemVM.setOnLoadListener {
@@ -57,6 +61,12 @@ class FragmentMain : Fragment() {
             recycleView.adapter = adapter
         }
 
+
+        swipeRefreshLayout.setOnRefreshListener {
+            itemVM.forceLoad(userUID)
+            swipeRefreshLayout.isRefreshing = false
+            adapter.notifyDataSetChanged()
+        }
         return v
     }
 
@@ -72,6 +82,7 @@ class FragmentMain : Fragment() {
         val userUID = sharedPref.getString("UID", "")!!
 
 //        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        this.userUID = userUID
         itemVM.loadForUserUID(userUID)
 
 
