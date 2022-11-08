@@ -5,10 +5,13 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "items")
-class Item (album: String, userUID : String, imageUri : String){
+class Item (qrId: String, userUID : String, album : String, imageUri : String){
     @PrimaryKey()
     @ColumnInfo(name = "album")
     var album : String
+
+    @ColumnInfo(name = "qrId")
+    var qrId : String
 
     @ColumnInfo(name = "userUID")
     var userUID : String
@@ -18,6 +21,7 @@ class Item (album: String, userUID : String, imageUri : String){
 
     init {
         this.album = album
+        this.qrId = qrId
         this.userUID = userUID
         this.imageUri = imageUri
     }

@@ -1,13 +1,18 @@
 package com.higa.birritenexplorer.viewModels
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.tasks.Task
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.higa.birritenexplorer.entities.Item
+import kotlinx.coroutines.tasks.await
 import java.io.File
 
 class ImagesViewModel : ViewModel(){
@@ -15,11 +20,9 @@ class ImagesViewModel : ViewModel(){
     var toUploadList : MutableList<Item> = mutableListOf()
     private val firestoreDB = Firebase.firestore
     var localIsUpdated : Boolean = false
-    var previousUID : String = "none"
 
     fun loadForUserUID(userUID : String){
-
-        if (previousUID == userUID && localIsUpdated){
+        if (localIsUpdated){
             listener()
             return
         }
@@ -29,7 +32,9 @@ class ImagesViewModel : ViewModel(){
             itemList.clear()
             for (document in documents){
                 var data = document.data
-                itemList.add(Item(data["album"].toString(), data["userUID"].toString(), data["imageURI"].toString()))
+                var imageURI = data["imageURI"]
+                imageURI = Uri.parse(imageURI as String?).toString()
+                itemList.add(Item(data["qrId"].toString(), data["userUID"].toString(), data["album"].toString(), imageURI))
             }
             localIsUpdated = true
             listener()
@@ -43,7 +48,7 @@ class ImagesViewModel : ViewModel(){
     }
 
     fun addLocal(item : Item){
-        localIsUpdated = false
+//        localIsUpdated = false
         itemList.add(item)
         toUploadList.add(item)
     }
@@ -55,66 +60,87 @@ class ImagesViewModel : ViewModel(){
     fun uploadPending(){
         for (item in toUploadList){
             var file = Uri.parse(item.imageUri)
-            val imageReference = Firebase.storage.reference.child("${item.userUID}/${item.album}/${file.lastPathSegment}")
+            val imageReference = Firebase.storage.reference.child("${item.userUID}/${item.qrId}/${file.lastPathSegment}")
 
             var uploadTask = imageReference.putFile(file)
             uploadTask.addOnFailureListener {
                 // Handle unsuccessful uploads
-                Log.d("UPLOAD UPLOAAAAD", "UPLOAD FUFCKING FAILEEEED :((((:LDJ!@#!!!!")
             }.addOnSuccessListener { taskSnapshot ->
-                // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
-                // ...
-                Log.d("UPLOAD UPLOAAAAD", "FFUCK YEAAAAHFUCK YEAAAAHFUCK YEAAAAHFUCK YEAAAAHUCK YEAAAAH IMAGE REFERENCE IS ${imageReference.toString()}")
                 val data = hashMapOf(
                     "album" to item.album,
+                    "qrId" to item.qrId,
                     "imageURI" to imageReference.toString(),
                     "userUID" to item.userUID,
                 )
                 firestoreDB.collection("images").add(data)
-                    .addOnSuccessListener { Log.d("UPLOAD", "DDocumentSnapshot successfully written!DocumentSnapshot successfully written!DocumentSnapshot successfully written!ocumentSnapshot successfully written!") }
-                    .addOnFailureListener { e -> Log.w("UPLOAD", "EError writing documentError writing documentError writing documentError writing documentError writing documentrror writing document", e) }
+                    .addOnSuccessListener { Log.d("UPLOAD", "Document added") }
+                    .addOnFailureListener { e -> Log.w("UPLOAD", "Error adding new document", e) }
             }
         }
     }
 
-    fun changeAlbumName(previousName : String, newName : String){
+    fun changeAlbumName(qrId : String, newName : String){
+        var userUID : String = ""
+
         for (item in itemList){
-            Log.d("CHANGEALBUMNAME", "CHANGING TO $newName")
-            if (previousName == item.album){
+            userUID = item.userUID
+            if (qrId == item.qrId){
                 item.album = newName
             }
         }
         for (item in toUploadList){
-            if (previousName == item.album){
+            if (qrId == item.qrId){
                 item.album = newName
             }
         }
 
-        Log.d("CHANGEALBUMNAME", "STARTIN CLOUD ALBUM NAME AAA")
-        var collection = firestoreDB.collection("images")
-        collection.whereEqualTo("album", previousName).get().addOnSuccessListener { documents ->
+        // Update album data on each image
+        var collectionImages = firestoreDB.collection("images")
+        collectionImages.whereEqualTo("qrId", qrId).get().addOnSuccessListener { documents ->
             for (document in documents){
                 var data = document.data
-                Log.d("UPDATING", "UPDATING NEW DOCUMENT WITH OC ID ${document.id.toString()}")
                 data["album"] = newName
-                collection.document(document.id.toString()).set(data)
-                    .addOnSuccessListener { Log.d("TAGANGNAANGNAGNAN", "DocumentSnapshot successfully written!") }
-                    .addOnFailureListener { e -> Log.w("TAGANGNAANGNAGNAN", "Error writing document", e) }
+                collectionImages.document(document.id.toString()).set(data)
             }
         }
-        localIsUpdated = false
+
+        // Update QR Album map
+        var collectionNoters = firestoreDB.collection("quicknoter")
+        collectionNoters.whereEqualTo("userUID", userUID).whereEqualTo("qrId", qrId).get().addOnSuccessListener { documents ->
+            for (document in documents){
+                var data = document.data
+                data["album"] = newName
+                collectionNoters.document(document.id.toString()).set(data)
+            }
+        }
     }
 
-    fun getByAlbum(album : String) : MutableList<Item>{
+    fun getByQrId(qrId: String) : MutableList<Item>{
         var filtered : MutableList<Item> = mutableListOf()
 
         for (item in itemList) {
-            Log.d("FFILTERFILTERFILTERFILTERFILTERFILTERILTER", "FILTERING ALBUM $album")
-            if (album == item.album) {
+            if (qrId == item.qrId) {
                filtered.add((item))
            }
         }
 
         return filtered
     }
+
+    fun getAlbumByIdentificatorsTask(userUID: String, qrId : String) : Task<QuerySnapshot> {
+        var collection = firestoreDB.collection("quicknoter")
+        return collection.whereEqualTo("userUID", userUID).whereEqualTo("qrId", qrId).get()
+    }
+
+    fun addNewQRId(userUID: String, qrId: String, album: String) {
+        val data = hashMapOf(
+            "album" to album,
+            "qrId" to qrId,
+            "userUID" to userUID,
+        )
+        firestoreDB.collection("quicknoter").add(data)
+            .addOnSuccessListener { Log.d("UPLOAD", "Document added") }
+            .addOnFailureListener { e -> Log.w("UPLOAD", "Error adding new document", e) }
+    }
+
 }

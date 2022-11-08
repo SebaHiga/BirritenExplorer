@@ -31,6 +31,7 @@ class AlbumContentAdapter (private var itemList : MutableList<Item>) : RecyclerV
                     }
                 }
                 else{
+                    Log.d("ADAPTER AAA", "IMAGE URI IS $imageUri")
                     Picasso.get().load(imageUri).into(imageView)
                 }
             }

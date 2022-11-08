@@ -31,6 +31,14 @@
             android:name="album"
             app:argType="string"
             android:defaultValue="default" />
+        <argument
+            android:name="qrId"
+            app:argType="string"
+            android:defaultValue="none" />
+        <argument
+            android:name="isNew"
+            app:argType="boolean"
+            android:defaultValue="false" />
     </fragment>
     <activity
         android:id="@+id/settingsActivity"

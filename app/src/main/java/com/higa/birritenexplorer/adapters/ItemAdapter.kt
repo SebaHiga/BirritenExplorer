@@ -1,5 +1,6 @@
 package com.higa.birritenexplorer.adapters
 
+import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -31,7 +32,6 @@ class ItemAdapter (private var itemList : MutableList<Item>, private val listene
             if (imageUri != "null"){
                 if (imageUri.startsWith("gs")){
                     Firebase.storage.getReferenceFromUrl(imageUri).downloadUrl.addOnSuccessListener { url ->
-                        Log.d("ADAPTER AAA", "IMAGE URI IS $url")
                         Picasso.get().load(url).into(imageView);
                     }
                 }

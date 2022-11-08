@@ -48,6 +48,8 @@ class FragmentCreation : Fragment() {
     lateinit var binding : FragmentCreationBinding
     private val itemVM : ImagesViewModel by viewModels()
     var album : String = "default"
+    var qrId : String = "none"
+    var isNew : Boolean = false
     private val PREF_NAME = "myPreferences"
     lateinit var userUID : String
     lateinit var adapter : AlbumContentAdapter
@@ -124,9 +126,8 @@ class FragmentCreation : Fragment() {
         // Callback from camera intent
         if (resultCode == Activity.RESULT_OK){
             // Set image captured to image view
-//            imageViewCreateItem?.setImageURI(imageUri)
-            Log.d("LAJSLKDJALSJDLKJSKDJALSKJDKALSKDJ ON CAMERA", "NEW IMAGE URI IS ${imageUri.toString()}")
-            itemVM.addLocal(Item(album, userUID, imageUri.toString()))
+            Log.d("LAJSLKDJALSJDLKJSKDJALSKJDKALSKDJ ON CAMERA", "NEW IMAGE $qrId URI IS ${imageUri.toString()}")
+            itemVM.addLocal(Item(qrId, userUID, album, imageUri.toString()))
         }
         else {
             // Failed to take picture
@@ -154,16 +155,24 @@ class FragmentCreation : Fragment() {
             "SI",
             DialogInterface.OnClickListener { dialog, which -> // Do nothing but close the dialog
                 dialog.dismiss()
-                if (album != binding.textAlbumName.text.toString()){
-                    itemVM.changeAlbumName(album, binding.textAlbumName.text.toString())
+                if (isNew){
+                    itemVM.addNewQRId(userUID, qrId, binding.textAlbumName.text.toString())
                 }
+                else {
+                    if (album != binding.textAlbumName.text.toString()){
+                        itemVM.changeAlbumName(qrId, binding.textAlbumName.text.toString())
+                    }
+                }
+
                 itemVM.uploadPending()
+                findNavController().popBackStack()
             })
 
         builder.setNegativeButton(
             "NO",
             DialogInterface.OnClickListener { dialog, which -> // Do nothing
                 dialog.dismiss()
+                findNavController().popBackStack()
             })
 
         val alert: android.app.AlertDialog = builder.create()
@@ -182,13 +191,16 @@ class FragmentCreation : Fragment() {
         userUID = sharedPref.getString("UID", "")!!
 
         album = FragmentCreationArgs.fromBundle(requireArguments()).album
+        qrId = FragmentCreationArgs.fromBundle(requireArguments()).qrId
+        isNew = FragmentCreationArgs.fromBundle(requireArguments()).isNew
 
         itemVM.loadForUserUID(userUID)
 
         binding.albumContent.layoutManager = LinearLayoutManager(requireContext())
 
         itemVM.setOnLoadListener {
-            adapter = AlbumContentAdapter(itemVM.getByAlbum(album))
+            Log.d("LOAD LISTENEEEEEER", "LITEN ALKSJDALSKDJAJSLDAJSKDLJASKDJ FUCKFUCKFUCKFUCKFUCKFUKC")
+            adapter = AlbumContentAdapter(itemVM.getByQrId(qrId))
             binding.albumContent.adapter = adapter
         }
 
@@ -204,8 +216,9 @@ class FragmentCreation : Fragment() {
             if (itemVM.toUploadList.isNotEmpty() || album != binding.textAlbumName.text.toString()){
                askLoginWithPreviousUser()
             }
-
-            findNavController().popBackStack()
+            else{
+                findNavController().popBackStack()
+            }
         }
 
         binding.buttonAlbumAddImage.setOnClickListener {

@@ -37,7 +37,6 @@ class FragmentMain : Fragment() {
     lateinit var v : View
     lateinit var recycleView : RecyclerView
     lateinit var adapter : ItemAdapter
-    lateinit var buttonAdd : Button
     // Access a Cloud Firestore instance from your Activity
     val firestoreDB = Firebase.firestore
 
@@ -48,7 +47,6 @@ class FragmentMain : Fragment() {
         v = inflater.inflate(R.layout.fragment_main, container, false)
 
         recycleView = v.findViewById(R.id.itemList)
-        buttonAdd = v.findViewById(R.id.addButton)
 
         return v
     }
@@ -71,7 +69,7 @@ class FragmentMain : Fragment() {
 
         itemVM.setOnLoadListener {
             adapter = ItemAdapter(itemVM.itemList) { item ->
-                val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.album)
+                val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.album, item.qrId)
                 v.findNavController().navigate(action)
             }
             recycleView.adapter = adapter
@@ -85,26 +83,5 @@ class FragmentMain : Fragment() {
 //            recycleView.layoutManager = LinearLayoutManager(requireContext())
 //            recycleView.adapter = adapter
 //        }
-
-//        var docRef = firestoreDB.collection("images")
-//
-//        val query = docRef.whereEqualTo("userUID", userUID).get().addOnSuccessListener { documents ->
-//            for (document in documents){
-//                var data = document.data
-//                itemVM.add(Item(data["album"].toString(), data["userUID"].toString(), data["imageURI"].toString()))
-//            }
-//            adapter = ItemAdapter(itemVM.itemList) { item ->
-//                val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.album)
-//                v.findNavController().navigate(action)
-//            }
-//
-//            recycleView.layoutManager = LinearLayoutManager(requireContext())
-//            recycleView.adapter = adapter
-//        }
-
-        buttonAdd.setOnClickListener {
-            val action = FragmentMainDirections.actionFragmentMainToFragmentCreation("New album")
-            v.findNavController().navigate(action)
-        }
     }
 }

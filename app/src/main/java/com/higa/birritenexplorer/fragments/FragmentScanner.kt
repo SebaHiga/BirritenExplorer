@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.graphics.LinearGradient
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -20,6 +21,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.preference.PreferenceFragmentCompat
 import com.google.android.gms.vision.CameraSource
@@ -28,6 +30,8 @@ import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import com.higa.birritenexplorer.R
 import com.higa.birritenexplorer.databinding.FragmentScannerBinding
+import com.higa.birritenexplorer.viewModels.ImagesViewModel
+import kotlinx.coroutines.runBlocking
 import java.io.IOException
 
 class FragmentScanner : Fragment() {
@@ -39,18 +43,22 @@ class FragmentScanner : Fragment() {
     // TODO: Rename and change types of parameters
 
     private val PREF_NAME = "myPreferences"
-
+    private lateinit var userUID : String
     private val requestCodeCameraPermission = 1001
-    private lateinit var cameraSource: CameraSource
-    private lateinit var barcodeDetector: BarcodeDetector
+    private lateinit var cameraSource : CameraSource
+    private lateinit var barcodeDetector : BarcodeDetector
     private var scannedValue = ""
     private lateinit var binding : FragmentScannerBinding
+    private val itemVM : ImagesViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
+
+        val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        userUID = sharedPref.getString("UID", "")!!
 
         binding = FragmentScannerBinding.inflate(inflater)
         inflater.inflate(R.layout.fragment_profile, container, false)
@@ -127,15 +135,23 @@ class FragmentScanner : Fragment() {
                     //Don't forget to add this line printing value or finishing activity must run on main thread
                     activity!!.runOnUiThread {
                         cameraSource.stop()
-                        Toast.makeText(activity, "value- $scannedValue", Toast.LENGTH_SHORT).show()
-//                        finish()
                     }
-                    val action = FragmentScannerDirections.actionFragmentScannerToFragmentCreation(scannedValue)
-                    binding.root.findNavController().navigate(action)
-                }else
-                {
-                    Toast.makeText(activity as Context, "value- else", Toast.LENGTH_SHORT).show()
 
+                    itemVM.getAlbumByIdentificatorsTask(userUID, scannedValue)
+                        .addOnSuccessListener { documents ->
+                            if (documents.size() == 0){
+                                // QR ID Was not found
+                                Log.d("ON QR LOAD", "NEW ALBUM!")
+                                val action = FragmentScannerDirections.actionFragmentScannerToFragmentCreation("Album nuevo", scannedValue, true)
+                                binding.root.findNavController().navigate(action)
+                            }
+                            for (document in documents) {
+                                Log.d("ON QR LOAD", "SUCESSFULY LOADED AND FOUND ALBUM")
+                                val album = document.data["album"] as String
+                                val action = FragmentScannerDirections.actionFragmentScannerToFragmentCreation(album, scannedValue)
+                                binding.root.findNavController().navigate(action)
+                            }
+                        }
                 }
             }
         })
