@@ -155,16 +155,7 @@ class FragmentCreation : Fragment() {
             "SI",
             DialogInterface.OnClickListener { dialog, which -> // Do nothing but close the dialog
                 dialog.dismiss()
-                if (isNew){
-                    itemVM.addNewQRId(userUID, qrId, binding.textAlbumName.text.toString())
-                }
-                else {
-                    if (album != binding.textAlbumName.text.toString()){
-                        itemVM.changeAlbumName(qrId, binding.textAlbumName.text.toString())
-                    }
-                }
-
-                itemVM.uploadPending()
+                save()
                 findNavController().popBackStack()
             })
 
@@ -177,6 +168,20 @@ class FragmentCreation : Fragment() {
 
         val alert: android.app.AlertDialog = builder.create()
         alert.show()
+    }
+
+    fun save(){
+        if (isNew){
+            itemVM.addNewQRId(userUID, qrId, binding.textAlbumName.text.toString())
+        }
+        else {
+            if (album != binding.textAlbumName.text.toString()){
+                itemVM.changeAlbumName(qrId, binding.textAlbumName.text.toString())
+            }
+        }
+
+        itemVM.uploadPending()
+        itemVM.toDisableUpdate()
     }
 
     override fun onResume() {
@@ -199,8 +204,12 @@ class FragmentCreation : Fragment() {
         binding.albumContent.layoutManager = LinearLayoutManager(requireContext())
 
         itemVM.setOnLoadListener {
-            Log.d("LOAD LISTENEEEEEER", "LITEN ALKSJDALSKDJAJSLDAJSKDLJASKDJ FUCKFUCKFUCKFUCKFUCKFUKC")
             adapter = AlbumContentAdapter(itemVM.getByQrId(qrId))
+
+            // Configure disable image
+            adapter.addDisableOnClickListener { imageUri ->
+                itemVM.setDisabled(imageUri)
+            }
             binding.albumContent.adapter = adapter
         }
 
@@ -213,7 +222,9 @@ class FragmentCreation : Fragment() {
         binding.textAlbumName.setText(album)
 
         binding.buttonAlbumQuit.setOnClickListener {
-            if (itemVM.toUploadList.isNotEmpty() || album != binding.textAlbumName.text.toString()){
+            if (itemVM.toUploadList.isNotEmpty()
+                || album != binding.textAlbumName.text.toString()
+                || itemVM.toDisableList.isNotEmpty()){
                askLoginWithPreviousUser()
             }
             else{

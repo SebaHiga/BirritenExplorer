@@ -63,10 +63,6 @@ class FragmentMain : Fragment() {
         val userUID = sharedPref.getString("UID", "")!!
 
 //        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        itemVM.loadForUserUID(userUID)
-
-        recycleView.layoutManager = LinearLayoutManager(requireContext())
-
         itemVM.setOnLoadListener {
             adapter = ItemAdapter(itemVM.itemList) { item ->
                 val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.album, item.qrId)
@@ -74,6 +70,10 @@ class FragmentMain : Fragment() {
             }
             recycleView.adapter = adapter
         }
+        itemVM.loadForUserUID(userUID)
+
+        recycleView.layoutManager = LinearLayoutManager(requireContext())
+
 
 //        itemVM.itemList.observe(viewLifecycleOwner) { data ->
 //            adapter = ItemAdapter(data) { item ->

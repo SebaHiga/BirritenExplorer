@@ -18,6 +18,7 @@ import java.io.File
 class ImagesViewModel : ViewModel(){
     var itemList : MutableList<Item> = mutableListOf()
     var toUploadList : MutableList<Item> = mutableListOf()
+    var toDisableList : MutableList<Item> = mutableListOf()
     private val firestoreDB = Firebase.firestore
     var localIsUpdated : Boolean = false
 
@@ -28,13 +29,19 @@ class ImagesViewModel : ViewModel(){
         }
 
         var collection = firestoreDB.collection("images")
-        collection.whereEqualTo("userUID", userUID).get().addOnSuccessListener { documents ->
+        collection.whereEqualTo("userUID", userUID).whereEqualTo("enabled", true).get().addOnSuccessListener { documents ->
             itemList.clear()
             for (document in documents){
                 var data = document.data
                 var imageURI = data["imageURI"]
                 imageURI = Uri.parse(imageURI as String?).toString()
-                itemList.add(Item(data["qrId"].toString(), data["userUID"].toString(), data["album"].toString(), imageURI))
+                itemList.add(
+                    Item(data["qrId"].toString(),
+                    data["userUID"].toString(),
+                    data["album"].toString(),
+                    imageURI,
+                    data["enabled"] as Boolean
+                ))
             }
             localIsUpdated = true
             listener()
@@ -71,6 +78,7 @@ class ImagesViewModel : ViewModel(){
                     "qrId" to item.qrId,
                     "imageURI" to imageReference.toString(),
                     "userUID" to item.userUID,
+                    "enabled" to true,
                 )
                 firestoreDB.collection("images").add(data)
                     .addOnSuccessListener { Log.d("UPLOAD", "Document added") }
@@ -96,7 +104,7 @@ class ImagesViewModel : ViewModel(){
 
         // Update album data on each image
         var collectionImages = firestoreDB.collection("images")
-        collectionImages.whereEqualTo("qrId", qrId).get().addOnSuccessListener { documents ->
+        collectionImages.whereEqualTo("userUID", userUID).whereEqualTo("qrId", qrId).get().addOnSuccessListener { documents ->
             for (document in documents){
                 var data = document.data
                 data["album"] = newName
@@ -143,4 +151,32 @@ class ImagesViewModel : ViewModel(){
             .addOnFailureListener { e -> Log.w("UPLOAD", "Error adding new document", e) }
     }
 
+    fun toDisableUpdate(){
+        for (item in toDisableList){
+            var collectionImages = firestoreDB.collection("images")
+            collectionImages
+                .whereEqualTo("userUID", item.userUID)
+                .whereEqualTo("qrId", item.qrId)
+                .whereEqualTo("imageURI", item.imageUri)
+                .get()
+                .addOnSuccessListener { documents ->
+                for (document in documents){
+                    var data = document.data
+                    data["enabled"] = false
+                    collectionImages.document(document.id.toString()).set(data)
+                }
+            }
+        }
+    }
+
+    fun setDisabled(imageUri: String){
+        for (it in itemList){
+            if (it.imageUri == imageUri){
+                toDisableList.add(it)
+                it.enabled = false
+                itemList.remove(it)
+            }
+        }
+        listener()
+    }
 }
