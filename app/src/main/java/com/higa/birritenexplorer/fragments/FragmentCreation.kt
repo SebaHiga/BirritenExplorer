@@ -61,6 +61,18 @@ class FragmentCreation : Fragment() {
     ): View? {
         binding = FragmentCreationBinding.inflate(inflater, container, false)
 
+        binding.albumContent.layoutManager = LinearLayoutManager(requireContext())
+
+        itemVM.setOnLoadListener {
+            adapter = AlbumContentAdapter(itemVM.getByQrId(qrId))
+
+            // Configure disable image
+            adapter.addDisableOnClickListener { imageUri ->
+                itemVM.setDisabled(imageUri)
+            }
+            binding.albumContent.adapter = adapter
+        }
+
         return binding.root
     }
 
@@ -200,18 +212,6 @@ class FragmentCreation : Fragment() {
         isNew = FragmentCreationArgs.fromBundle(requireArguments()).isNew
 
         itemVM.loadForUserUID(userUID)
-
-        binding.albumContent.layoutManager = LinearLayoutManager(requireContext())
-
-        itemVM.setOnLoadListener {
-            adapter = AlbumContentAdapter(itemVM.getByQrId(qrId))
-
-            // Configure disable image
-            adapter.addDisableOnClickListener { imageUri ->
-                itemVM.setDisabled(imageUri)
-            }
-            binding.albumContent.adapter = adapter
-        }
 
 //        itemVM.itemList.observe(viewLifecycleOwner) { data ->
 //            adapter = AlbumContentAdapter(data)

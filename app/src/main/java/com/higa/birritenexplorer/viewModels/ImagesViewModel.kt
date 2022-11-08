@@ -22,9 +22,11 @@ class ImagesViewModel : ViewModel(){
     private val firestoreDB = Firebase.firestore
     var localIsUpdated : Boolean = false
 
+    private var listeners : MutableList<() -> Unit> = mutableListOf()
+
     fun loadForUserUID(userUID : String){
         if (localIsUpdated){
-            listener()
+            callListeners()
             return
         }
 
@@ -44,14 +46,18 @@ class ImagesViewModel : ViewModel(){
                 ))
             }
             localIsUpdated = true
+            callListeners()
+        }
+    }
+
+    private fun callListeners(){
+        for (listener in listeners){
             listener()
         }
     }
 
-    private var listener : () -> Unit = {}
-
     fun setOnLoadListener (callback : () -> Unit){
-        listener = callback
+        listeners.add(callback)
     }
 
     fun addLocal(item : Item){
@@ -177,6 +183,6 @@ class ImagesViewModel : ViewModel(){
                 itemList.remove(it)
             }
         }
-        listener()
+        callListeners()
     }
 }
