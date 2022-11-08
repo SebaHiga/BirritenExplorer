@@ -2,6 +2,7 @@ package com.higa.birritenexplorer.fragments
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -52,16 +53,16 @@ class FragmentMain : Fragment() {
         v = inflater.inflate(R.layout.fragment_main, container, false)
 
         recycleView = v.findViewById(R.id.itemList)
-//        swipeRefreshLayout = v.findViewById(R.id.swipeContainer)
+        swipeRefreshLayout = v.findViewById(R.id.swipeContainer)
         itemVM.loadForUserUID(userUID)
         itemVM.setOnLoadListener {
             recycleView.apply {
                 layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-                adapter = SummaryAdapter(itemVM.albumSummary){ album ->
+                adapter = SummaryAdapter(itemVM.albumSummary){ item ->
                     val action =
                         FragmentMainDirections.actionFragmentMainToFragmentCreation(
-                            album.album,
-                            album.qrId
+                            item.album,
+                            item.qrId
                         )
                     v.findNavController().navigate(action)
                 }
@@ -89,11 +90,11 @@ class FragmentMain : Fragment() {
 //            recycleView.adapter = adapter
 //        }
 
-//        swipeRefreshLayout.setOnRefreshListener {
-//            itemVM.forceLoad(userUID)
-//            swipeRefreshLayout.isRefreshing = false
+        swipeRefreshLayout.setOnRefreshListener {
+            itemVM.forceLoad(userUID)
+            swipeRefreshLayout.isRefreshing = false
 //            adapter.notifyDataSetChanged()
-//        }
+        }
         return v
     }
 

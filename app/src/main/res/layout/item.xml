@@ -8,8 +8,8 @@
 
     <ImageView
         android:id="@+id/albumImageView"
-        android:layout_width="162dp"
-        android:layout_height="249dp"
+        android:layout_width="269dp"
+        android:layout_height="504dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"

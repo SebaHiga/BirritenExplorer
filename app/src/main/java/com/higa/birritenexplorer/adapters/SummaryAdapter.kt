@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.album.view.*
 import kotlinx.android.synthetic.main.fragment_creation.view.*
 import kotlinx.android.synthetic.main.fragment_main.view.*
 
-class SummaryAdapter (private var albumList : MutableList<Album>, private val listener: (Album) -> Unit) : RecyclerView.Adapter<SummaryAdapter.ViewHolder>() {
+class SummaryAdapter (private var albumList : MutableList<Album>, private val listener: (Item) -> Unit) : RecyclerView.Adapter<SummaryAdapter.ViewHolder>() {
     private val viewPool = RecyclerView.RecycledViewPool()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -29,18 +29,17 @@ class SummaryAdapter (private var albumList : MutableList<Album>, private val li
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        Log.d("BIND VIE", "!@#!#!@*%#&^@%*#&^!%@*#!^%*#^!%*#!^%@&#%!*^#%*!@^%#*!&^%#&^!%@*#!&^%#*&!@^%#*^!%@#")
         holder.textView.text = albumList[position].album
-        holder.itemView.setOnClickListener { listener(albumList[position]) }
+//        holder.itemView.setOnClickListener { listener(albumList[position]) }
         holder.recyclerView.apply {
             layoutManager = LinearLayoutManager(holder.recyclerView.context, RecyclerView.HORIZONTAL, false)
-            adapter = ItemAdapter(albumList[position].content)
+            adapter = ItemAdapter(albumList[position].content, listener)
+//            setOnClickListener { listener(albumList[position]) }
             setRecycledViewPool(viewPool)
         }
     }
 
     override fun getItemCount(): Int {
-        Log.d("BIND VIE", "COOOUNT IS ASDASDASDASDAKSDJAKLSDJA ${albumList.size}")
         return albumList.size
     }
 

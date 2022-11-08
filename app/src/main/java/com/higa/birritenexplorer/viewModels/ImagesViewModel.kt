@@ -52,7 +52,7 @@ class ImagesViewModel : ViewModel(){
        var albumItemMap : HashMap<String, MutableList<Item>> = hashMapOf()
        var albumQrIdMap : HashMap<String, String> = hashMapOf()
 
-//        albumSummary.clear()
+        albumSummary.clear()
         for (item in itemList){
            albumItemMap[item.album] = mutableListOf()
         }
@@ -65,7 +65,6 @@ class ImagesViewModel : ViewModel(){
        albumItemMap.forEach{ entry ->
            albumQrIdMap[entry.key]?.let { Album(it, entry.key, entry.value) }
                ?.let { albumSummary.add(it) }
-           Log.d("ASDFASDFASDFl", "asdkfajsdkfjaksjdkfj ${entry.key} ${entry.value}")
        }
     }
 
