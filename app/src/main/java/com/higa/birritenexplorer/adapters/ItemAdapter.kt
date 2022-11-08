@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.higa.birritenexplorer.R
@@ -32,11 +33,11 @@ class ItemAdapter (private var itemList : MutableList<Item>, private val listene
             if (imageUri != "null"){
                 if (imageUri.startsWith("gs")){
                     Firebase.storage.getReferenceFromUrl(imageUri).downloadUrl.addOnSuccessListener { url ->
-                        Picasso.get().load(url).into(imageView);
+                        Picasso.get().load(url).placeholder(R.drawable.progress_animation).into(imageView);
                     }
                 }
                 else{
-                    Picasso.get().load(imageUri).into(imageView)
+                    Picasso.get().load(imageUri).placeholder(R.drawable.progress_animation).into(imageView)
                 }
             }
         }

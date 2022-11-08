@@ -39,12 +39,12 @@ class AlbumContentAdapter (private var itemList : MutableList<Item>) : RecyclerV
                 if (imageUri.startsWith("gs")){
                     Firebase.storage.getReferenceFromUrl(imageUri).downloadUrl.addOnSuccessListener { url ->
                         Log.d("ADAPTER AAA", "IMAGE URI IS $url")
-                        Picasso.get().load(url).into(imageView);
+                        Picasso.get().load(url).placeholder(R.drawable.progress_animation).into(imageView);
                     }
                 }
                 else{
                     Log.d("ADAPTER AAA", "IMAGE URI IS $imageUri")
-                    Picasso.get().load(imageUri).into(imageView)
+                    Picasso.get().load(imageUri).placeholder(R.drawable.progress_animation).into(imageView)
                 }
             }
         }
