@@ -22,6 +22,7 @@ import com.higa.birritenexplorer.adapters.AlbumContentAdapter
 import com.higa.birritenexplorer.adapters.ItemAdapter
 import com.higa.birritenexplorer.adapters.SummaryAdapter
 import com.higa.birritenexplorer.viewModels.ImagesViewModel
+import kotlinx.coroutines.*
 
 /**
  * A simple [Fragment] subclass.
@@ -44,8 +45,6 @@ class FragmentMain : Fragment() {
     lateinit var adapter : SummaryAdapter
     lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private var userUID = ""
-    // Access a Cloud Firestore instance from your Activity
-    val firestoreDB = Firebase.firestore
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -55,7 +54,9 @@ class FragmentMain : Fragment() {
 
         recycleView = v.findViewById(R.id.itemList)
         swipeRefreshLayout = v.findViewById(R.id.swipeContainer)
-        itemVM.loadForUserUID(userUID)
+        runBlocking {
+            itemVM.loadForUserUID(userUID)
+        }
         itemVM.setOnLoadListener {
             recycleView.apply {
                 layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
@@ -71,29 +72,10 @@ class FragmentMain : Fragment() {
         }
         LinearSnapHelper().attachToRecyclerView(recycleView)
 
-
-//        recycleView.layoutManager = LinearLayoutManager(requireContext())
-//        itemVM.setOnLoadListener {
-//            adapter = SummaryAdapter(itemVM.albumSummary) { album ->
-//                val action =
-//                    FragmentMainDirections.actionFragmentMainToFragmentCreation(
-//                        album.album,
-//                        album.qrId
-//                    )
-//                v.findNavController().navigate(action)
-//            }
-//            recycleView.adapter = adapter
-//        }
-//        itemVM.setOnLoadListener {
-//            adapter = ItemAdapter(itemVM.itemList) { item ->
-//                val action = FragmentMainDirections.actionFragmentMainToFragmentCreation(item.album, item.qrId)
-//                v.findNavController().navigate(action)
-//            }
-//            recycleView.adapter = adapter
-//        }
-
         swipeRefreshLayout.setOnRefreshListener {
-            itemVM.forceLoad(userUID)
+            runBlocking {
+                itemVM.forceLoad(userUID)
+            }
             swipeRefreshLayout.isRefreshing = false
 //            adapter.notifyDataSetChanged()
         }
@@ -111,11 +93,12 @@ class FragmentMain : Fragment() {
         val sharedPref: SharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         val userUID = sharedPref.getString("UID", "")!!
 
-//        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
         this.userUID = userUID
-        itemVM.loadForUserUID(userUID)
 
-
+        var scope = CoroutineScope(Dispatchers.Default + Job())
+        scope.launch {
+            itemVM.loadForUserUID(userUID)
+        }
 
 //        itemVM.itemList.observe(viewLifecycleOwner) { data ->
 //            adapter = ItemAdapter(data) { item ->

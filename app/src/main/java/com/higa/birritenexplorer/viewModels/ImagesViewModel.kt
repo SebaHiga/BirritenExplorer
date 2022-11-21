@@ -10,6 +10,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.higa.birritenexplorer.entities.Album
 import com.higa.birritenexplorer.entities.Item
+import kotlinx.coroutines.tasks.await
 
 class ImagesViewModel : ViewModel(){
     var itemList : MutableList<Item> = mutableListOf()
@@ -21,31 +22,32 @@ class ImagesViewModel : ViewModel(){
 
     private var listeners : MutableList<() -> Unit> = mutableListOf()
 
-    fun loadForUserUID(userUID : String){
+    suspend fun loadForUserUID(userUID : String){
         if (localIsUpdated){
             callListeners()
             return
         }
 
         var collection = firestoreDB.collection("images")
-        collection.whereEqualTo("userUID", userUID).whereEqualTo("enabled", true).get().addOnSuccessListener { documents ->
-            itemList.clear()
-            for (document in documents){
-                var data = document.data
-                var imageURI = data["imageURI"]
-                imageURI = Uri.parse(imageURI as String?).toString()
-                itemList.add(
-                    Item(data["qrId"].toString(),
+
+        var documents = collection.whereEqualTo("userUID", userUID).whereEqualTo("enabled", true).get().await()
+
+        itemList.clear()
+        for (document in documents){
+            var data = document.data
+            var imageURI = data["imageURI"]
+            imageURI = Uri.parse(imageURI as String?).toString()
+            itemList.add(
+                Item(data["qrId"].toString(),
                     data["userUID"].toString(),
                     data["album"].toString(),
                     imageURI,
                     data["enabled"] as Boolean
                 ))
-            }
-            localIsUpdated = true
-            generateAlbumSummary()
-            callListeners()
         }
+        localIsUpdated = true
+        generateAlbumSummary()
+        callListeners()
     }
 
     fun generateAlbumSummary(){
@@ -68,7 +70,7 @@ class ImagesViewModel : ViewModel(){
        }
     }
 
-    fun forceLoad(userUID : String){
+    suspend fun forceLoad(userUID : String){
         localIsUpdated = false
         loadForUserUID(userUID)
     }

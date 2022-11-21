@@ -35,6 +35,7 @@ import com.higa.birritenexplorer.database.ItemDao
 import com.higa.birritenexplorer.databinding.FragmentCreationBinding
 import com.higa.birritenexplorer.databinding.FragmentLoginBinding
 import com.higa.birritenexplorer.viewModels.ImagesViewModel
+import kotlinx.coroutines.runBlocking
 
 
 class FragmentCreation : Fragment() {
@@ -211,7 +212,9 @@ class FragmentCreation : Fragment() {
         qrId = FragmentCreationArgs.fromBundle(requireArguments()).qrId
         isNew = FragmentCreationArgs.fromBundle(requireArguments()).isNew
 
-        itemVM.loadForUserUID(userUID)
+        runBlocking {
+            itemVM.loadForUserUID(userUID)
+        }
 
 //        itemVM.itemList.observe(viewLifecycleOwner) { data ->
 //            adapter = AlbumContentAdapter(data)
