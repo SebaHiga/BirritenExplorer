@@ -3,7 +3,7 @@
 
     <item
         android:id="@+id/FragmentMain"
-        android:icon="@drawable/iconbirra"
+        android:icon="@drawable/iconalbum"
         android:title="Main" />
 
     <item

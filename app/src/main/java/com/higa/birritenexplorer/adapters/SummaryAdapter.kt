@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -37,6 +38,7 @@ class SummaryAdapter (private var albumList : MutableList<Album>, private val li
 //            setOnClickListener { listener(albumList[position]) }
             setRecycledViewPool(viewPool)
         }
+        LinearSnapHelper().attachToRecyclerView(holder.recyclerView)
     }
 
     override fun getItemCount(): Int {

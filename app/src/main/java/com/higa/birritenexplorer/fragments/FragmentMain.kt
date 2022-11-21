@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.firebase.firestore.ktx.firestore
@@ -67,8 +68,9 @@ class FragmentMain : Fragment() {
                     v.findNavController().navigate(action)
                 }
             }
-
         }
+        LinearSnapHelper().attachToRecyclerView(recycleView)
+
 
 //        recycleView.layoutManager = LinearLayoutManager(requireContext())
 //        itemVM.setOnLoadListener {
