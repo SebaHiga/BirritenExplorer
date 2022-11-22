@@ -10,6 +10,7 @@ import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
@@ -95,10 +96,14 @@ class FragmentMain : Fragment() {
 
         this.userUID = userUID
 
-        var scope = CoroutineScope(Dispatchers.Default + Job())
-        scope.launch {
+        lifecycleScope.launch(){
             itemVM.loadForUserUID(userUID)
+
         }
+//        var scope = CoroutineScope(Dispatchers.Default + Job())
+//        runBlocking {
+//            itemVM.loadForUserUID(userUID)
+//        }
 
 //        itemVM.itemList.observe(viewLifecycleOwner) { data ->
 //            adapter = ItemAdapter(data) { item ->
