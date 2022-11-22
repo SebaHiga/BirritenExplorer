@@ -69,7 +69,7 @@ class FragmentLogin: Fragment() {
         builder.setMessage("Quieres seguir usando el usuario previo?")
 
         // QUITAR
-        goToMainActivity()
+//        goToMainActivity()
 
         builder.setPositiveButton(
             "SI",
